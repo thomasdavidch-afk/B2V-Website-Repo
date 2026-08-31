@@ -1,0 +1,93 @@
+/* ==========================================================================
+   CHARTE GRAPHIQUE B2V (Surcharge Bootstrap 5)
+   ========================================================================== */
+
+:root {
+    /* 1. Couleurs de la charte */
+    --b2v-primary: #fffaf7;      /* Primary / Fond */
+    --b2v-secondary: #f9ae81;    /* Secondary / Pêche */
+    --b2v-action: #f37021;       /* Buttons & Icons */
+    --b2v-text: #292f51;         /* Text / Bleu nuit */
+    --b2v-blue-dark: #265ca4;    /* Others 1 / Bleu foncé */
+    --b2v-blue-light: #6569f6;   /* Others 2 / Bleu-violet */
+
+    /* 2. Typographies Google Fonts */
+    --font-heading: 'Russo One', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* 3. Surcharges des variables globales Bootstrap */
+    --bs-body-bg: var(--b2v-primary);
+    --bs-body-color: var(--b2v-text);
+    --bs-body-font-family: var(--font-body);
+    --bs-primary: var(--b2v-action);
+    --bs-secondary: var(--b2v-secondary);
+}
+
+/* ==========================================================================
+   APPLICATION DES TYPOGRAPHIES & BASE
+   ========================================================================== */
+
+body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-family: var(--font-body);
+    font-weight: 400; /* Regular */
+}
+
+/* Titres B2V (Russo One) */
+h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+}
+
+/* Inter Medium */
+.font-medium {
+    font-weight: 500 !important;
+}
+
+/* ==========================================================================
+   BOUTONS & CLASSES UTILITAIRES BOOTSTRAP
+   ========================================================================== */
+
+.btn {
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+}
+
+/* Bouton Principal -> Orange Action (#f37021) */
+.btn-primary {
+    --bs-btn-bg: #f37021;
+    --bs-btn-border-color: #f37021;
+    --bs-btn-hover-bg: #d95d13;
+    --bs-btn-hover-border-color: #cb5611;
+    --bs-btn-active-bg: #cb5611;
+    --bs-btn-active-border-color: #bd4f0e;
+    --bs-btn-color: #ffffff;
+}
+
+/* Bouton Secondaire -> Pêche (#f9ae81) */
+.btn-secondary {
+    --bs-btn-bg: #f9ae81;
+    --bs-btn-border-color: #f9ae81;
+    --bs-btn-hover-bg: #f7965e;
+    --bs-btn-hover-border-color: #f68a4c;
+    --bs-btn-color: #292f51;
+}
+
+/* Bouton Personnalisé -> Bleu B2V (#265ca4) */
+.btn-b2v-blue {
+    background-color: var(--b2v-blue-dark);
+    border-color: var(--b2v-blue-dark);
+    color: #ffffff;
+}
+.btn-b2v-blue:hover {
+    background-color: #1f4b86;
+    border-color: #1f4b86;
+    color: #ffffff;
+}
+
+/* Classes utilitaires de couleur */
+.text-action { color: var(--b2v-action) !important; }
+.text-dark-blue { color: var(--b2v-text) !important; }
+.bg-b2v-primary { background-color: var(--b2v-primary) !important; }
+.bg-b2v-secondary { background-color: var(--b2v-secondary) !important; }

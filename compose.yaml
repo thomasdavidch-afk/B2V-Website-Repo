@@ -1,0 +1,78 @@
+services:
+  # 1. Front-End (SPA HTML / JS / CSS)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: b2v_frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    networks:
+      - b2v_network
+
+  # 2. Serveur Web Backend (Nginx pour Symfony API)
+  nginx:
+    image: nginx:alpine
+    container_name: b2v_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/backend
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - b2v_network
+
+  # 3. PHP / Symfony
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: b2v_php
+    volumes:
+      - ./backend:/var/www/backend
+    networks:
+      - b2v_network
+
+  # 4. Base de données MySQL
+  database:
+    image: mysql:8.0
+    container_name: b2v_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: b2v_db
+      MYSQL_USER: b2v_user
+      MYSQL_PASSWORD: b2v_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - b2v_network
+
+  # 5. Interface PhpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: b2v_phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: database
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    ports:
+      - "8081:80"
+    depends_on:
+      - database
+    networks:
+      - b2v_network
+
+networks:
+  b2v_network:
+    driver: bridge
+
+volumes:
+  db_data:
