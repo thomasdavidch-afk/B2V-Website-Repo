@@ -1,0 +1,124 @@
+<div class="container py-5">
+    <!-- SECTION 1 : Formulaire de contact -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="text-center mb-4">
+                <h1 class="font-title display-6 mb-2">Contactez-nous</h1>
+                <p class="text-muted small">Vos données restent confidentielles.</p>
+            </div>
+
+            <!-- Message d'alerte de confirmation / erreur -->
+            <div id="contact-alert" class="alert d-none" role="alert"></div>
+
+            <form id="contact-form" novalidate>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="lastName" class="form-label font-medium small">Nom</label>
+                        <input type="text" class="form-control" id="lastName" placeholder="Nom de famille" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="firstName" class="form-label font-medium small">Prénom</label>
+                        <input type="text" class="form-control" id="firstName" placeholder="Prénom" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="email" class="form-label font-medium small">E-mail</label>
+                        <input type="email" class="form-control" id="email" placeholder="vous@exemple.com" required>
+                        <div class="form-text text-muted small">Pour vous répondre.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label font-medium small">Téléphone</label>
+                        <input type="tel" class="form-control" id="phone" placeholder="Optionnel">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="subject" class="form-label font-medium small">Sujet / Titre du message</label>
+                        <input type="text" class="form-control" id="subject" placeholder="Ex : Inscriptions 2026" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="message" class="form-label font-medium small">Votre message</label>
+                        <textarea class="form-control" id="message" rows="3" placeholder="Décrivez votre demande..." required></textarea>
+                        <div class="form-text text-muted small">Dites-nous ce dont vous avez besoin.</div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-dark px-4 py-2 font-medium">Envoyer le message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Séparateur -->
+    <hr class="my-5 border-secondary-subtle">
+
+    <!-- SECTION 2 : Coordonnées du club -->
+    <div class="row align-items-start g-4 py-2">
+        <div class="col-12 col-lg-4">
+            <h2 class="font-title h3 mb-2">Coordonnées du club</h2>
+            <p class="text-muted small">Contact direct & lieu d'entraînement.</p>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="row g-4 text-center">
+                <!-- E-mail -->
+                <div class="col-6 col-md-6">
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mb-2" style="width: 54px; height: 54px;">
+                            <i class="bi bi-envelope-fill fs-4 text-secondary"></i>
+                        </div>
+                        <span class="text-muted small mb-1">E-mail</span>
+                        <a href="mailto:b2v.club@gmail.com" class="fw-bold text-dark text-decoration-none text-break">
+                            b2v.club@gmail.com
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Téléphone -->
+                <div class="col-6 col-md-6">
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mb-2" style="width: 54px; height: 54px;">
+                            <i class="bi bi-telephone-fill fs-4 text-secondary"></i>
+                        </div>
+                        <span class="text-muted small mb-1">Téléphone</span>
+                        <a href="tel:+33607457861" class="fw-bold text-dark text-decoration-none">
+                            +33 6 07 45 78 61
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Adresse -->
+                <div class="col-6 col-md-6 mt-4">
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mb-2" style="width: 54px; height: 54px;">
+                            <i class="bi bi-geo-alt-fill fs-4 text-danger"></i>
+                        </div>
+                        <span class="text-muted small mb-1">Adresse / Lieu</span>
+                        <p class="fw-bold text-dark mb-0">
+                            CREPS de Toulouse<br>
+                            <span class="fw-normal text-muted small">Complexe Sportif</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Horaires -->
+                <div class="col-6 col-md-6 mt-4">
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mb-2" style="width: 54px; height: 54px;">
+                            <i class="bi bi-clock-fill fs-4 text-secondary"></i>
+                        </div>
+                        <span class="text-muted small mb-1">Horaires</span>
+                        <p class="fw-bold text-dark mb-0">
+                            Entraînements :<br>
+                            [Ven/Dim] — 14h00 à 21h00
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

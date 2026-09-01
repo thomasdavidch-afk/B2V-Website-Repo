@@ -27,7 +27,7 @@
         <nav class="navbar navbar-expand-lg bg-white border-bottom py-2">
             <div class="container">
                 <!-- Logo B2V (Lien SPA) -->
-                <a class="navbar-brand d-flex align-items-center py-0" href="/">
+                <a class="navbar-brand d-flex align-items-center py-0" href="/" onclick="route()">
                     <img src="assets/images/Logo_B2V.png" alt="Logo B2V - Beach Volley Vibes" class="header-logo" height="45" style="max-height: 45px; width: auto;">
                 </a>
 
@@ -38,24 +38,24 @@
                 <div class="collapse navbar-collapse" id="mainNavbar">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3 align-items-lg-center">
                         <li class="nav-item">
-                            <a class="nav-link text-action font-medium" href="/">Accueil</a>
+                            <a class="nav-link text-dark-blue font-medium" href="/" onclick="route()">Accueil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark-blue" href="/club">Le Club</a>
+                            <a class="nav-link text-dark-blue font-medium" href="/club" onclick="route()">Le Club</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark-blue" href="/faq">FAQ</a>
+                            <a class="nav-link text-dark-blue font-medium" href="/faq" onclick="route()">FAQ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark-blue" href="/contact">Contact</a>
+                            <a class="nav-link text-dark-blue font-medium" href="/contact" onclick="route()">Contact</a>
                         </li>
                         <!-- Conditionnel : Achat de sessions (injecté / affiché si connecté) -->
                         <li class="nav-item d-none" id="nav-sessions">
-                            <a class="nav-link text-dark-blue font-medium" href="/sessions">Achat de sessions</a>
+                            <a class="nav-link text-dark-blue font-medium" href="/sessions" onclick="route()">Achat de sessions</a>
                         </li>
                         <!-- Connexion / Mon Compte -->
                         <li class="nav-item ms-lg-2" id="nav-auth-container">
-                            <a href="/login" class="btn btn-outline-b2v btn-sm px-3" id="btn-login">Connexion</a>
+                            <a href="/login" onclick="route()" class="btn btn-outline-b2v btn-sm px-3" id="btn-login">Connexion</a>
                         </li>
                     </ul>
                 </div>
@@ -82,12 +82,12 @@
                 <span>•</span>
                 <span>&copy; 2026</span>
                 <span>•</span>
-                <a href="/mentions-legales" class="text-muted text-decoration-none">Mentions Légales</a>
+                <a href="/mentions-legales" onclick="route()" class="text-muted text-decoration-none">Mentions Légales</a>
             </div>
             <div class="d-flex justify-content-center gap-3 text-muted small">
-                <a href="/cgv" class="text-muted text-decoration-none">CGV</a>
+                <a href="/cgv" onclick="route()" class="text-muted text-decoration-none">CGV</a>
                 <span>•</span>
-                <a href="/reglement-interieur" class="text-muted text-decoration-none">Règlement Intérieur</a>
+                <a href="/reglement-interieur" onclick="route()" class="text-muted text-decoration-none">Règlement Intérieur</a>
             </div>
         </div>
     </footer>

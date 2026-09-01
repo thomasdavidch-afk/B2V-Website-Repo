@@ -1,0 +1,160 @@
+<!-- Hero Header (Style cohérent B2V) -->
+<section class="py-5 text-white text-center" style="background-color: var(--color-navy, #2b3353);">
+    <div class="container py-4">
+        <h1 class="font-title display-4 fw-bold mb-3">F.A.Q</h1>
+        <p class="text-white-50 lead mb-0">
+            Questions fréquentes · Trouvez rapidement vos réponses sur le beach-volley et le club B2V.
+        </p>
+    </div>
+</section>
+
+<!-- Section Accordéon FAQ -->
+<section class="py-5 min-vh-75" style="background-color: var(--color-sand, #fdfbf7);">
+    <div class="container py-4">
+        <div class="row g-4 justify-content-center">
+            
+            <!-- Colonne Titre & Présentation gauche -->
+            <div class="col-lg-4 col-md-5">
+                <div class="pe-lg-3 sticky-md-top" style="top: 100px; z-index: 1;">
+                    <span class="badge bg-coral text-white px-3 py-2 rounded-pill fw-semibold text-uppercase mb-3 fs-7">
+                        Aide & Infos
+                    </span>
+                    <h2 class="font-title display-6 fw-bold text-dark-blue mb-3">FAQ</h2>
+                    <p class="text-secondary leading-relaxed mb-4">
+                        Une question sur les formats de jeu, les entraînements ou les inscriptions ? Parcourez nos réponses les plus fréquentes ci-contre.
+                    </p>
+                    <div class="p-4 rounded-4 bg-white shadow-sm border border-light">
+                        <p class="fw-semibold text-dark-blue mb-2">Vous n'avez pas trouvé votre réponse ?</p>
+                        <p class="small text-secondary mb-3">Notre équipe est disponible pour vous répondre rapidement par message.</p>
+                        <a href="/contact" class="btn btn-outline-dark-blue btn-sm rounded-pill fw-bold px-3 py-2">
+                            <i class="bi bi-envelope me-1"></i> Nous contacter
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Accordéon droite -->
+            <div class="col-lg-8 col-md-7">
+                <div class="accordion custom-faq-accordion d-flex flex-column gap-3" id="faqAccordion">
+
+                    <!-- Question 1 (Ouverte par défaut) -->
+                    <div class="accordion-item border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <h2 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button font-title fw-bold text-dark-blue shadow-none py-3 px-4" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#faqCollapse1" 
+                                    aria-expanded="true" 
+                                    aria-controls="faqCollapse1">
+                                <i class="bi bi-patch-question-fill text-coral me-3 fs-5"></i>
+                                Le Beach c'est du 2vs2, 3vs3... ?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse1" 
+                             class="accordion-collapse collapse show" 
+                             aria-labelledby="faqHeading1" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-4 pb-4 pt-1 text-secondary leading-relaxed border-top-0">
+                                Dans les règles officielles du Beach-Volley, il se joue en <strong>2 contre 2</strong>. Cependant, lors de nos sessions libres, initiations ou événements festifs au club, nous proposons également des formats loisirs en <strong>3vs3 ou 4vs4</strong> pour permettre à tout le monde de progresser et de s'amuser quel que soit le niveau !
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="accordion-item border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <h2 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed font-title fw-bold text-dark-blue shadow-none py-3 px-4" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#faqCollapse2" 
+                                    aria-expanded="false" 
+                                    aria-controls="faqCollapse2">
+                                <i class="bi bi-person-plus-fill text-primary-b2v me-3 fs-5"></i>
+                                Comment rejoindre le B2V et faire partie de l'aventure ?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse2" 
+                             class="accordion-collapse collapse" 
+                             aria-labelledby="faqHeading2" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-4 pb-4 pt-1 text-secondary leading-relaxed border-top-0">
+                                Pour nous rejoindre, rien de plus simple ! Vous pouvez réserver une <strong>séance d'essai</strong> ou nous contacter directement via notre page <a href="/contact" class="text-coral text-decoration-none fw-semibold">Contact</a>. Vous pourrez ensuite finaliser votre adhésion et choisir votre formule (Loisir, Compétition ou Entraînement dirigé) directement en ligne.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="accordion-item border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <h2 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed font-title fw-bold text-dark-blue shadow-none py-3 px-4" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#faqCollapse3" 
+                                    aria-expanded="false" 
+                                    aria-controls="faqCollapse3">
+                                <i class="bi bi-calendar3 text-sun-yellow me-3 fs-5"></i>
+                                Quels sont les jours et horaires d'entraînement ?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse3" 
+                             class="accordion-collapse collapse" 
+                             aria-labelledby="faqHeading3" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-4 pb-4 pt-1 text-secondary leading-relaxed border-top-0">
+                                Les entraînements encadrés et créneaux de jeu libre ont lieu du Vendredi au Dimanche. Dès votre inscription, vous aurez accès à notre Planning via l'Application SportEasy, où vous pourrez réserver vos créneaux et consulter les horaires exacts selon la saison et les événements spéciaux.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="accordion-item border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <h2 class="accordion-header" id="faqHeading4">
+                            <button class="accordion-button collapsed font-title fw-bold text-dark-blue shadow-none py-3 px-4" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#faqCollapse4" 
+                                    aria-expanded="false" 
+                                    aria-controls="faqCollapse4">
+                                <i class="bi bi-trophy-fill text-coral me-3 fs-5"></i>
+                                Licence Compétition ou Loisir ?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse4" 
+                             class="accordion-collapse collapse" 
+                             aria-labelledby="faqHeading4" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-4 pb-4 pt-1 text-secondary leading-relaxed border-top-0">
+                                La formule <strong>Loisir</strong> convient parfaitement aux personnes souhaitant s'entraîner, jouer entre amis et progresser sans pression de résultat. La formule <strong>Compétition</strong> (licence FFVolley) est obligatoire si vous souhaitez participer aux tournois officiels (Série 1, Série 2, Série 3, Coupe de France).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="accordion-item border-0 rounded-4 shadow-sm overflow-hidden bg-white">
+                        <h2 class="accordion-header" id="faqHeading5">
+                            <button class="accordion-button collapsed font-title fw-bold text-dark-blue shadow-none py-3 px-4" 
+                                    type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#faqCollapse5" 
+                                    aria-expanded="false" 
+                                    aria-controls="faqCollapse5">
+                                <i class="bi bi-geo-alt-fill text-primary-b2v me-3 fs-5"></i>
+                                D'autres lieux pour pratiquer le Beach sur Toulouse ?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse5" 
+                             class="accordion-collapse collapse" 
+                             aria-labelledby="faqHeading5" 
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body px-4 pb-4 pt-1 text-secondary leading-relaxed border-top-0">
+                                Selon la saison et les partenariats en cours, des créneaux délocalisés ou des événements sur d'autres structures de la région toulousaine peuvent être proposés (terrains d'été, gymnases avec sable). Restez informés via nos actualités et notre groupe WhatsApp adhérents !
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

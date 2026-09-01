@@ -130,3 +130,10 @@ BOUTONS & CLASSES UTILITAIRES BOOTSTRAP
 .text-dark-blue { color: var(--b2v-text) !important; }
 .bg-b2v-primary { background-color: var(--b2v-primary) !important; }
 .bg-b2v-secondary { background-color: var(--b2v-secondary) !important; }
+
+/* Couleur orange quand le lien est actif ou survolé */
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.text-action {
+    color: var(--color-action, #f26835) !important; /* Ajustez avec votre variable orange si besoin */
+    font-weight: 600;
+}

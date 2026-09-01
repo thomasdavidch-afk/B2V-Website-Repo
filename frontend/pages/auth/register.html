@@ -1,0 +1,228 @@
+<div class="container py-5">
+    
+    <!-- EN-TÊTE : Titre et boutons d'action -->
+    <div class="row justify-content-center text-center mb-5">
+        <div class="col-12 col-lg-8">
+            <h1 class="font-title display-6 mb-3">Rejoindre B2V - Demande d'adhésion</h1>
+            <p class="text-muted small mb-4">
+                Remplissez le formulaire pour créer votre dossier d'évaluation. Une session d'essai sera proposée avant l'activation définitive du compte.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/connexion" onclick="route()" class="btn btn-outline-dark px-4 py-2">Connexion</a>
+                <a href="#formulaire-adhesion" class="btn btn-dark px-4 py-2">Rejoindre B2V</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNIÈRE INFORMATIVE / ILLUSTREE -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-12 col-lg-10">
+            <div class="bg-light rounded border p-4 p-md-5 text-center text-muted d-flex align-items-center justify-content-center" style="min-height: 180px;">
+                <p class="mb-0 small">
+                    L'envoi de ce formulaire crée un dossier d'évaluation. Une session d'essai sera proposée avant l'activation définitive du compte.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION FORMULAIRE : Colonne gauche (Titre) + Colonne droite (Champs par étapes) -->
+    <div class="row justify-content-center my-5" id="formulaire-adhesion">
+        <div class="col-12 col-lg-10">
+            <div class="row g-5">
+                
+                <!-- Colonne de gauche : Explications -->
+                <div class="col-12 col-md-5">
+                    <h2 class="font-title h3 mb-3">Demande d'adhésion</h2>
+                    <p class="text-muted small">
+                        Champs requis marqués (<strong>*</strong>). Vous pourrez relire et envoyer votre candidature à la fin.
+                    </p>
+                </div>
+
+                <!-- Colonne de droite : Formulaire structuré en 3 étapes -->
+                <div class="col-12 col-md-7">
+                    <form id="register-form" novalidate>
+
+                        <!-- ÉTAPE 1 : Informations personnelles -->
+                        <div class="mb-4">
+                            <div class="border-bottom pb-2 mb-3">
+                                <span class="fw-bold text-dark d-block">Étape 1 — Informations personnelles</span>
+                                <span class="text-muted small">Nom, Prénom, E-mail, Numéro de téléphone</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reg-lastname" class="form-label font-medium small mb-1">Nom *</label>
+                                <input type="text" class="form-control" id="reg-lastname" placeholder="Dupont" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reg-firstname" class="form-label font-medium small mb-1">Prénom *</label>
+                                <input type="text" class="form-control" id="reg-firstname" placeholder="Alexandre" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reg-email" class="form-label font-medium small mb-1">Email *</label>
+                                <input type="email" class="form-control" id="reg-email" placeholder="alexandre.dupont@email.com" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reg-phone" class="form-label font-medium small mb-1">Numéro de téléphone *</label>
+                                <input type="tel" class="form-control" id="reg-phone" placeholder="+33 6 12 34 56 78" required>
+                            </div>
+                        </div>
+
+                        <!-- ÉTAPE 2 : Qualification sportive & préférences -->
+                        <div class="mb-4 pt-3">
+                            <div class="border-bottom pb-2 mb-3">
+                                <span class="fw-bold text-dark d-block">Étape 2 — Qualification sportive & préférences</span>
+                                <span class="text-muted small">Niveau estimé et créneaux souhaités pour organiser votre session d'essai.</span>
+                            </div>
+
+                            <!-- Niveau de jeu estimé (Boutons radio / Pills) -->
+                            <div class="mb-3">
+                                <label class="form-label font-medium small mb-2 d-block">Niveau de jeu estimé *</label>
+                                <div class="d-flex flex-wrap gap-2 mb-1">
+                                    <input type="radio" class="btn-check" name="level" id="level-debutant" value="debutant" autocomplete="off" required>
+                                    <label class="btn btn-outline-secondary btn-sm" for="level-debutant">Débutant</label>
+
+                                    <input type="radio" class="btn-check" name="level" id="level-intermediaire" value="intermediaire" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="level-intermediaire">Intermédiaire</label>
+
+                                    <input type="radio" class="btn-check" name="level" id="level-confirme" value="confirme" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="level-confirme">Confirmé</label>
+
+                                    <input type="radio" class="btn-check" name="level" id="level-competition" value="competition" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="level-competition">Compétition</label>
+                                </div>
+                                <div class="form-text text-muted small">• Sélection obligatoire</div>
+                            </div>
+
+                            <!-- Créneaux et disponibilités (Checkboxes) -->
+                            <div class="mb-3">
+                                <label class="form-label font-medium small mb-2 d-block">Créneaux et disponibilités souhaités *</label>
+                                <div class="d-flex flex-wrap gap-2 mb-1">
+                                    <input type="checkbox" class="btn-check" id="slot-vendredi" value="vendredi" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="slot-vendredi">Vendredi</label>
+
+                                    <input type="checkbox" class="btn-check" id="slot-samedi" value="samedi" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="slot-samedi">Samedi</label>
+
+                                    <input type="checkbox" class="btn-check" id="slot-dimanche" value="dimanche" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm" for="slot-dimanche">Dimanche</label>
+                                </div>
+                                <div class="form-text text-muted small">• Cochez ceux qui vous conviennent le mieux</div>
+                            </div>
+
+                            <!-- Attentes / Expérience -->
+                            <div class="mb-3">
+                                <label for="reg-experience" class="form-label font-medium small mb-1">Vos attentes / Expérience passée en volley ou beach-volley</label>
+                                <textarea class="form-control" id="reg-experience" rows="3" placeholder="Ex: 2 ans de volley, j'aime l'apprentissage technique, objectif : progresser en 2x2..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- ÉTAPE 3 : Soumission & validation -->
+                        <div class="mb-4 pt-3">
+                            <div class="border-bottom pb-2 mb-3">
+                                <span class="fw-bold text-dark d-block">Étape 3 — Soumission & validation</span>
+                                <span class="text-muted small">Vérification anti-abus & consentements avant envoi.</span>
+                            </div>
+
+                            <!-- Anti-robot placeholder -->
+                            <div class="mb-3 p-3 bg-light border rounded">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="captcha-check" required>
+                                    <label class="form-check-label small" for="captcha-check">
+                                        Je ne suis pas un robot
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Consentement -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="consent-check" required>
+                                    <label class="form-check-label small" for="consent-check">
+                                        J'accepte le <a href="/reglement-interieur" onclick="route()" class="text-decoration-underline text-dark" target="_blank">règlement du club</a> et le traitement de mes données conformément aux mentions légales.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-dark w-100 py-2 font-medium">Envoyer ma candidature</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5 opacity-25">
+
+    <!-- SECTION INFÉRIEURE : Ce qui se passe après l'envoi -->
+    <div class="row justify-content-center text-center mb-5">
+        <div class="col-12 col-lg-8">
+            <h2 class="font-title h3 mb-2">Ce qui se passe après l'envoi</h2>
+            <p class="text-muted small">Un membre de l'équipe B2V vous contactera pour planifier votre session d'essai.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4 pb-4">
+        <div class="col-12 col-lg-10">
+            <div class="row g-3">
+                
+                <!-- Étape 1 -->
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded h-100 d-flex align-items-center gap-3">
+                        <div class="bg-light border rounded d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-secondary">1</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium h6 mb-1 text-dark">1) Création du dossier</h3>
+                            <p class="text-muted small mb-0">Votre candidature est enregistrée et évaluée.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 2 -->
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded h-100 d-flex align-items-center gap-3">
+                        <div class="bg-light border rounded d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-secondary">2</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium h6 mb-1 text-dark">2) Proposition d'essai</h3>
+                            <p class="text-muted small mb-0">On vous propose un créneau d'essai selon vos disponibilités.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 3 -->
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded h-100 d-flex align-items-center gap-3">
+                        <div class="bg-light border rounded d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-secondary">3</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium h6 mb-1 text-dark">3) Activation du compte</h3>
+                            <p class="text-muted small mb-0">Après validation, votre compte est activé.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 4 -->
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded h-100 d-flex align-items-center gap-3">
+                        <div class="bg-light border rounded d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-secondary">4</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium h6 mb-1 text-dark">4) Intégration au groupe</h3>
+                            <p class="text-muted small mb-0">Vous recevez les infos pratiques (planning, règles, communications).</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
