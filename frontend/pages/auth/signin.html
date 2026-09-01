@@ -1,0 +1,65 @@
+<div class="container py-5">
+
+    <!-- 1. EN-TÊTE : Titre et bouton d'action secondaire -->
+    <div class="row justify-content-center text-center mb-5">
+        <div class="col-12 col-lg-8">
+            <h1 class="font-title display-6 mb-2">Connexion à votre espace</h1>
+            <p class="text-muted small mb-4">
+                Accédez à vos sessions, réservations et compte B2V
+            </p>
+            <div>
+                <a href="/inscription" onclick="route()" class="btn btn-dark px-4 py-2">Rejoindre B2V</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SECTION DU FORMULAIRE DE CONNEXION -->
+    <div class="row justify-content-center align-items-start my-5">
+        
+        <!-- Colonne gauche : Intitulé de la section -->
+        <div class="col-12 col-lg-4 mb-4 mb-lg-0 pe-lg-4">
+            <h2 class="font-title h3 mb-2">Connexion</h2>
+            <p class="text-muted small">
+                Connectez-vous pour gérer votre compte B2V.
+            </p>
+        </div>
+
+        <!-- Colonne droite : Formulaire -->
+        <div class="col-12 col-lg-6">
+            <form id="form-login" onsubmit="return false;">
+                
+                <!-- Champ Adresse e-mail -->
+                <div class="mb-4">
+                    <label for="login-email" class="form-label small fw-semibold mb-1">Adresse e-mail</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control border-start-0" id="login-email" placeholder="prenom.nom@exemple.com" required>
+                    </div>
+                </div>
+
+                <!-- Champ Mot de passe -->
+                <div class="mb-4">
+                    <label for="login-password" class="form-label small fw-semibold mb-1">Mot de passe</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control border-end-0" id="login-password" placeholder="••••••••" required>
+                        <button class="btn btn-outline-secondary border-start-0 bg-white text-muted" 
+                            type="button" 
+                            id="btn-toggle-password" 
+                            onclick="const p = document.getElementById('login-password'); const i = this.querySelector('i'); if(p.type==='password'){ p.type='text'; i.className='bi bi-eye-slash'; }else{ p.type='password'; i.className='bi bi-eye'; }">
+                            <i class="bi bi-eye" id="icon-toggle-password"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bouton de soumission -->
+                <div class="d-grid pt-2">
+                    <button type="submit" class="btn btn-dark py-2">Se connecter</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
