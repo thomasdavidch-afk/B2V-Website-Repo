@@ -11,6 +11,7 @@ export const allRoutes = [
     new Route("/cgv", "CGV", "/pages/cgv.html", []),
     new Route("/faq", "FAQ", "/pages/faq.html", []),
     new Route("/club", "Le Club", "/pages/club.html", []),
+    new Route("/accountUser", "Mon Compte", "/pages/auth/accountUser.html", []),
 ];
 
 // Le titre affiché sur l'onglet
