@@ -98,7 +98,7 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                     <div>
                         <h2 class="h4 fw-bold mb-1">Liste des Adhérents</h2>
-                        <p class="text-muted small mb-0">Création, ajustement des séances et gestion des accès.</p>
+                        <p class="text-muted small mb-0">Création, vérification des certificats, coordonnées et solde de séances.</p>
                     </div>
                     <button class="btn btn-dark rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateUser">
                         <i class="bi bi-person-plus-fill me-2"></i> Créer un nouvel adhérent
@@ -107,9 +107,9 @@
 
                 <div class="card border rounded-4 shadow-sm overflow-hidden bg-white">
                     <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
-                        <div class="input-group" style="max-width: 320px;">
+                        <div class="input-group" style="max-width: 350px;">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                            <input type="text" id="filter-members-input" class="form-control border-start-0" placeholder="Rechercher nom ou e-mail...">
+                            <input type="text" id="filter-members-input" class="form-control border-start-0" placeholder="Rechercher nom, prénom, email, ville...">
                         </div>
                         <button class="btn btn-outline-secondary btn-sm rounded-pill" id="btn-refresh-users">
                             <i class="bi bi-arrow-clockwise"></i> Rafraîchir
@@ -120,18 +120,22 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Adhérent</th>
+                                    <th>Nom</th>
+                                    <th>Prénom</th>
                                     <th>E-mail</th>
                                     <th>Téléphone</th>
-                                    <th>Solde Séances</th>
-                                    <th>Rôle</th>
+                                    <th>Date Inscr.</th>
+                                    <th>Adresse</th>
+                                    <th>Certificat</th>
+                                    <th>Statut</th>
+                                    <th>Solde</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body">
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
-                                        <div class="spinner-border spinner-border-sm text-primary me-2"></div> Chargement des membres...
+                                    <td colspan="10" class="text-center py-4 text-muted">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2"></div> Chargement des adhérents...
                                     </td>
                                 </tr>
                             </tbody>
@@ -147,7 +151,7 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
                     <div>
                         <h2 class="h4 fw-bold mb-1">Gestion des Séances d'entraînement</h2>
-                        <p class="text-muted small mb-0">Créer et planifier les créneaux B2V.</p>
+                        <p class="text-muted small mb-0">Créer, modifier et supprimer les créneaux B2V.</p>
                     </div>
                     <button class="btn btn-dark rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateSession">
                         <i class="bi bi-calendar-plus me-2"></i> Ajouter une séance
@@ -159,16 +163,15 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Titre</th>
-                                    <th>Date & Heure</th>
-                                    <th>Lieu</th>
-                                    <th>Capacité max</th>
+                                    <th>Date de la séance</th>
+                                    <th>Créneau horaire</th>
+                                    <th>Présences enregistrées</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="sessions-table-body">
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">Chargement des séances...</td>
+                                    <td colspan="4" class="text-center py-4 text-muted">Chargement des séances...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -191,7 +194,7 @@
                                 </select>
                             </div>
                             <p class="text-muted small">
-                                <i class="bi bi-info-circle text-primary me-1"></i> Cocher un membre décrémente son solde et valide sa présence.
+                                <i class="bi bi-info-circle text-primary me-1"></i> Pointer un adhérent décrémente automatiquement 1 séance de son carnet.
                             </p>
                         </div>
                     </div>
@@ -207,7 +210,7 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Adhérent</th>
-                                            <th>Solde actuel</th>
+                                            <th>Solde restant</th>
                                             <th class="text-center">Présence</th>
                                         </tr>
                                     </thead>
@@ -228,12 +231,12 @@
 </section>
 
 <!-- ========================================================================= -->
-<!-- MODALES (Création Adhérent / Ajustement Solde / Création Séance)           -->
+<!-- MODALES                                                                   -->
 <!-- ========================================================================= -->
 
 <!-- Modal 1 : Créer un adhérent -->
-<div class="modal fade" id="modalCreateUser" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="modalCreateUser" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 rounded-4 shadow">
             <form id="form-create-user">
                 <div class="modal-header border-bottom">
@@ -249,7 +252,7 @@
                         <label class="form-label small fw-semibold">Prénom *</label>
                         <input type="text" class="form-control" id="new-user-firstname" required>
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label small fw-semibold">E-mail *</label>
                         <input type="email" class="form-control" id="new-user-email" required>
                     </div>
@@ -257,11 +260,23 @@
                         <label class="form-label small fw-semibold">Téléphone</label>
                         <input type="tel" class="form-control" id="new-user-phone">
                     </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Rue / Adresse</label>
+                        <input type="text" class="form-control" id="new-user-rue" placeholder="Ex: 15 allée des Sports">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Code Postal</label>
+                        <input type="text" class="form-control" id="new-user-cp" placeholder="Ex: 31000">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label small fw-semibold">Ville</label>
+                        <input type="text" class="form-control" id="new-user-ville" placeholder="Ex: Toulouse">
+                    </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">Solde de départ</label>
+                        <label class="form-label small fw-semibold">Solde de départ (séances)</label>
                         <input type="number" class="form-control" id="new-user-balance" value="0" min="0">
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label small fw-semibold">Mot de passe temporaire *</label>
                         <input type="password" class="form-control" id="new-user-password" required minlength="6">
                     </div>
@@ -275,8 +290,78 @@
     </div>
 </div>
 
-<!-- Modal 2 : Ajuster Solde -->
-<div class="modal fade" id="modalAdjustBalance" tabindex="-1" aria-hidden="true">
+<!-- Modal 2 : Voir / Modifier un Adhérent & Certificat -->
+<div class="modal fade" id="modalEditUser" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <form id="form-edit-user">
+                <input type="hidden" id="edit-user-id">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold">Détails & Modification de l'Adhérent</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Nom *</label>
+                        <input type="text" class="form-control" id="edit-user-lastname" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Prénom *</label>
+                        <input type="text" class="form-control" id="edit-user-firstname" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">E-mail *</label>
+                        <input type="email" class="form-control" id="edit-user-email" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Téléphone</label>
+                        <input type="tel" class="form-control" id="edit-user-phone">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Rue / Adresse</label>
+                        <input type="text" class="form-control" id="edit-user-rue">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Code Postal</label>
+                        <input type="text" class="form-control" id="edit-user-cp">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label small fw-semibold">Ville</label>
+                        <input type="text" class="form-control" id="edit-user-ville">
+                    </div>
+
+                    <div class="col-12"><hr class="my-2"></div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Statut du compte</label>
+                        <select class="form-select" id="edit-user-is-active">
+                            <option value="true">Actif</option>
+                            <option value="false">Inactif (Bloqué / Désactivé)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Validation Certificat Médical</label>
+                        <div class="d-flex align-items-center gap-2 mb-2" id="edit-user-certif-preview"></div>
+                        <select class="form-select" id="edit-user-certif-status">
+                            <option value="non_fourni">Non fourni</option>
+                            <option value="en_attente">En attente de validation</option>
+                            <option value="valide">Validé</option>
+                            <option value="refuse">Refusé / Invalide</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-dark rounded-pill px-4">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3 : Ajuster Solde -->
+<div class="modal fade" id="modalAdjustBalance" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 rounded-4 shadow">
             <form id="form-adjust-balance">
@@ -298,8 +383,8 @@
     </div>
 </div>
 
-<!-- Modal 3 : Créer une séance -->
-<div class="modal fade" id="modalCreateSession" tabindex="-1" aria-hidden="true">
+<!-- Modal 4 : Créer une séance (Synchronisée avec le backend) -->
+<div class="modal fade" id="modalCreateSession" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow">
             <form id="form-create-session">
@@ -309,25 +394,21 @@
                 </div>
                 <div class="modal-body p-4 row g-3">
                     <div class="col-12">
-                        <label class="form-label small fw-semibold">Intitulé / Titre *</label>
-                        <input type="text" class="form-control" id="new-session-title" placeholder="Ex: Entraînement Compétition" required>
+                        <label class="form-label small fw-semibold">Date de la séance *</label>
+                        <input type="date" class="form-control" id="new-session-date" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">Date & Heure *</label>
-                        <input type="datetime-local" class="form-control" id="new-session-datetime" required>
+                        <label class="form-label small fw-semibold">Heure de début *</label>
+                        <input type="time" class="form-control" id="new-session-time-start" value="18:00" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-semibold">Capacité max</label>
-                        <input type="number" class="form-control" id="new-session-capacity" value="12" min="1">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-semibold">Lieu</label>
-                        <input type="text" class="form-control" id="new-session-location" value="Terrain B2V Toulouse">
+                        <label class="form-label small fw-semibold">Heure de fin *</label>
+                        <input type="time" class="form-control" id="new-session-time-end" value="20:00" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top">
                     <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-dark rounded-pill px-4">Ajouter</button>
+                    <button type="submit" class="btn btn-dark rounded-pill px-4">Créer la séance</button>
                 </div>
             </form>
         </div>

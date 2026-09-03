@@ -70,16 +70,9 @@ if (formLogin) {
             const payload = parseJwt(data.token);
             const roles = payload?.roles || [];
 
-            // Détermination de la cible selon le rôle
+            // Détermination de la cible et redirection
             const targetPath = roles.includes('ROLE_ADMIN') ? '/accountAdmin' : '/accountUser';
-            window.history.pushState({}, "", targetPath);
-
-            // Déclenchement de la navigation SPA sans faire planter preventDefault
-            if (typeof window.route === 'function') {
-                window.route(event);
-            } else {
-                window.dispatchEvent(new PopStateEvent('popstate'));
-            }
+            window.location.href = targetPath;
 
         } catch (error) {
             console.error('Erreur de connexion :', error.message);
@@ -89,7 +82,6 @@ if (formLogin) {
             errorAlert.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i> ${error.message}`;
             formLogin.appendChild(errorAlert);
 
-        } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
         }

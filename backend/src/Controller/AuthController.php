@@ -236,4 +236,98 @@ class AuthController extends AbstractController
             'roles' => $user->getRoles(),
         ]);
     }
+
+    /**
+     * Mettre à jour les informations du profil connecté
+     */
+    #[Route('/me', name: 'me_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(
+        summary: "Mise à jour du profil connecté",
+        description: "Permet à l'adhérent connecté de mettre à jour ses coordonnées personnelles.",
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'nom', type: 'string', example: 'Dupont'),
+                    new OA\Property(property: 'prenom', type: 'string', example: 'Jean'),
+                    new OA\Property(property: 'telephone', type: 'string', example: '0601020304'),
+                    new OA\Property(property: 'rue', type: 'string', example: '12 rue des Lilas'),
+                    new OA\Property(property: 'codePostal', type: 'string', example: '75001'),
+                    new OA\Property(property: 'ville', type: 'string', example: 'Paris'),
+                    new OA\Property(property: 'currentPassword', type: 'string', format: 'password', example: 'AncienMotDePasse'),
+                    new OA\Property(property: 'newPassword', type: 'string', format: 'password', example: 'NouveauMotDePasse123!')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Profil mis à jour avec succès'),
+            new OA\Response(response: 400, description: 'Données invalides ou mot de passe actuel erroné'),
+            new OA\Response(response: 401, description: 'Non autorisé')
+        ]
+    )]
+    #[Security(name: 'Bearer')]
+    public function updateMe(
+        #[CurrentUser] ?User $user,
+        Request $request,
+        UserPasswordHasherInterface $hasher,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        if (!$user) {
+            return $this->json(['message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!$data) {
+            return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (isset($data['nom'])) {
+            $user->setNom(trim((string)$data['nom']));
+        }
+        if (isset($data['prenom'])) {
+            $user->setPrenom(trim((string)$data['prenom']));
+        }
+        if (isset($data['telephone'])) {
+            $user->setTelephone(trim((string)$data['telephone']));
+        }
+        if (isset($data['rue'])) {
+            $user->setRue(trim((string)$data['rue']));
+        }
+        if (isset($data['codePostal'])) {
+            $user->setCodePostal(trim((string)$data['codePostal']));
+        }
+        if (isset($data['ville'])) {
+            $user->setVille(trim((string)$data['ville']));
+        }
+
+        // Si l'utilisateur souhaite changer son mot de passe
+        if (!empty($data['newPassword'])) {
+            if (empty($data['currentPassword'])) {
+                return $this->json(['message' => 'Veuillez renseigner votre mot de passe actuel.'], Response::HTTP_BAD_REQUEST);
+            }
+            if (!$hasher->isPasswordValid($user, $data['currentPassword'])) {
+                return $this->json(['message' => 'Le mot de passe actuel est incorrect.'], Response::HTTP_BAD_REQUEST);
+            }
+            if (strlen((string)$data['newPassword']) < 6) {
+                return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 6 caractères.'], Response::HTTP_BAD_REQUEST);
+            }
+            $user->setPassword($hasher->hashPassword($user, (string)$data['newPassword']));
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Profil mis à jour avec succès',
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getUserIdentifier(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'telephone' => $user->getTelephone(),
+                'rue' => $user->getRue(),
+                'codePostal' => $user->getCodePostal(),
+                'ville' => $user->getVille()
+            ]
+        ]);
+    }
 }

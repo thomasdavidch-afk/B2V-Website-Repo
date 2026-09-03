@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\CarnetSession;
 use App\Entity\Presence;
 use App\Entity\SessionEntrainement;
+use App\Entity\Transaction;
 use App\Entity\User;
 use App\Repository\CarnetSessionRepository;
 use App\Repository\PresenceRepository;
@@ -98,12 +99,12 @@ class PresenceController extends AbstractController
     }
 
     /**
-     * 2. Enregistrer une présence et impacter le CarnetSession
+     * 2. Enregistrer une présence, impacter le CarnetSession et tracer la Transaction
      */
     #[Route('', name: 'api_admin_presences_create', methods: ['POST'])]
     #[OA\Post(
         path: '/api/admin/presences',
-        summary: 'Émarger / Pointer un adhérent à une session (décompte carnet)',
+        summary: 'Émarger / Pointer un adhérent à une session (décompte carnet & création transaction)',
         security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
@@ -117,7 +118,7 @@ class PresenceController extends AbstractController
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'Présence enregistrée et carnet mis à jour'),
+            new OA\Response(response: 201, description: 'Présence enregistrée, carnet mis à jour et transaction tracée'),
             new OA\Response(response: 400, description: 'Carnet épuisé, statut invalide ou adhérent déjà pointé'),
             new OA\Response(response: 404, description: 'Utilisateur ou Séance non trouvé')
         ]
@@ -156,8 +157,9 @@ class PresenceController extends AbstractController
             return $this->json(['message' => 'Cet adhérent est déjà enregistré sur cette séance.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Gestion du carnet si le statut est "present"
         $carnet = $carnetRepository->findOneBy(['user' => $user]);
+
+        // Gestion du carnet et de la transaction si le statut est "present"
         if ($statut === 'present') {
             if (!$carnet) {
                 return $this->json(['message' => 'L\'adhérent ne possède aucun carnet de sessions.'], Response::HTTP_BAD_REQUEST);
@@ -166,10 +168,23 @@ class PresenceController extends AbstractController
                 return $this->json(['message' => 'Solde insuffisant : le carnet de l\'adhérent est épuisé (0 séance restante).'], Response::HTTP_BAD_REQUEST);
             }
 
-            // Décompte de 1 séance
+            // 1. Décompte de 1 séance
             $carnet->setNbSessionsRestant($carnet->getNbSessionsRestant() - 1);
+
+            // 2. Traçabilité dans la table Transaction
+            $sessionTitre = method_exists($session, 'getTitre') ? $session->getTitre() : 'Session d\'entraînement';
+            $transaction = new Transaction();
+            $transaction->setUser($user);
+            $transaction->setTypeTransaction('Présence ' . $sessionTitre);
+            $transaction->setNbSessions(-1);
+            $transaction->setMontant(0.0);
+            $transaction->setOrigin('PRESENCE');
+            $transaction->setDateTransaction(new \DateTimeImmutable());
+
+            $em->persist($transaction);
         }
 
+        // Enregistrement de la présence
         $presence = new Presence();
         $presence->setUser($user);
         $presence->setSessionEntrainement($session);
@@ -188,12 +203,12 @@ class PresenceController extends AbstractController
     }
 
     /**
-     * 3. Modifier le statut d'une présence (réajuste automatiquement le carnet)
+     * 3. Modifier le statut d'une présence (réajuste carnet et transactions)
      */
     #[Route('/{id}', name: 'api_admin_presences_update', methods: ['PUT', 'PATCH'])]
     #[OA\Put(
         path: '/api/admin/presences/{id}',
-        summary: 'Modifier le statut d\'une présence (ajuste le carnet en conséquence)',
+        summary: 'Modifier le statut d\'une présence (ajuste le carnet et trace la transaction)',
         security: [['Bearer' => []]],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
@@ -208,7 +223,7 @@ class PresenceController extends AbstractController
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Statut mis à jour et carnet réajusté'),
+            new OA\Response(response: 200, description: 'Statut mis à jour et transaction enregistrée'),
             new OA\Response(response: 400, description: 'Solde insuffisant ou statut invalide'),
             new OA\Response(response: 404, description: 'Présence introuvable')
         ]
@@ -227,23 +242,42 @@ class PresenceController extends AbstractController
         }
 
         $ancienStatut = $presence->getStatut();
+        $user = $presence->getUser();
 
         if ($ancienStatut !== $nouveauStatut) {
-            $carnet = $carnetRepository->findOneBy(['user' => $presence->getUser()]);
+            $carnet = $carnetRepository->findOneBy(['user' => $user]);
 
-            // Si on passe de absent/annule -> present (on doit consommer 1 séance)
+            // De absent/annule -> present (Débit de 1 session)
             if ($nouveauStatut === 'present' && $ancienStatut !== 'present') {
                 if (!$carnet || $carnet->getNbSessionsRestant() <= 0) {
                     return $this->json(['message' => 'Impossible de passer en "présent" : solde de séances épuisé.'], Response::HTTP_BAD_REQUEST);
                 }
                 $carnet->setNbSessionsRestant($carnet->getNbSessionsRestant() - 1);
+
+                $transaction = new Transaction();
+                $transaction->setUser($user);
+                $transaction->setTypeTransaction('Présence session (rectification)');
+                $transaction->setNbSessions(-1);
+                $transaction->setMontant(0.0);
+                $transaction->setOrigin('PRESENCE');
+                $transaction->setDateTransaction(new \DateTimeImmutable());
+                $em->persist($transaction);
             }
 
-            // Si on passe de present -> absent/annule (on re-crédite 1 séance)
+            // De present -> absent/annule (Crédit / Restitution de 1 session)
             if ($ancienStatut === 'present' && $nouveauStatut !== 'present') {
                 if ($carnet) {
                     $carnet->setNbSessionsRestant($carnet->getNbSessionsRestant() + 1);
                 }
+
+                $transaction = new Transaction();
+                $transaction->setUser($user);
+                $transaction->setTypeTransaction('Annulation présence (crédit retour)');
+                $transaction->setNbSessions(1);
+                $transaction->setMontant(0.0);
+                $transaction->setOrigin('ADMIN');
+                $transaction->setDateTransaction(new \DateTimeImmutable());
+                $em->persist($transaction);
             }
 
             $presence->setStatut($nouveauStatut);
@@ -257,7 +291,7 @@ class PresenceController extends AbstractController
     }
 
     /**
-     * 4. Supprimer une présence (re-crédite le carnet si l'adhérent était présent)
+     * 4. Supprimer une présence (re-crédite le carnet et trace le remboursement)
      */
     #[Route('/{id}', name: 'api_admin_presences_delete', methods: ['DELETE'])]
     #[OA\Delete(
@@ -268,7 +302,7 @@ class PresenceController extends AbstractController
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Présence supprimée'),
+            new OA\Response(response: 200, description: 'Présence supprimée et transaction tracée'),
             new OA\Response(response: 404, description: 'Présence introuvable')
         ]
     )]
@@ -277,12 +311,21 @@ class PresenceController extends AbstractController
         CarnetSessionRepository $carnetRepository,
         EntityManagerInterface $em
     ): JsonResponse {
-        // Si la présence était comptabilisée, on rend le crédit à l'adhérent
         if ($presence->getStatut() === 'present') {
-            $carnet = $carnetRepository->findOneBy(['user' => $presence->getUser()]);
+            $user = $presence->getUser();
+            $carnet = $carnetRepository->findOneBy(['user' => $user]);
             if ($carnet) {
                 $carnet->setNbSessionsRestant($carnet->getNbSessionsRestant() + 1);
             }
+
+            $transaction = new Transaction();
+            $transaction->setUser($user);
+            $transaction->setTypeTransaction('Suppression présence (séance recréditée)');
+            $transaction->setNbSessions(1);
+            $transaction->setMontant(0.0);
+            $transaction->setOrigin('ADMIN');
+            $transaction->setDateTransaction(new \DateTimeImmutable());
+            $em->persist($transaction);
         }
 
         $em->remove($presence);

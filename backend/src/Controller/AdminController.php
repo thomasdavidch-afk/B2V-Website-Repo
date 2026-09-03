@@ -270,4 +270,68 @@ class AdminController extends AbstractController
 
         return $this->json(['message' => 'Adhérent supprimé avec succès'], Response::HTTP_OK);
     }
+
+    /**
+     * Mettre à jour les informations d'un adhérent
+     */
+    #[Route('/users/{id}', name: 'users_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(
+        path: '/api/admin/users/{id}',
+        summary: 'Mettre à jour un utilisateur',
+        security: [['Bearer' => []]]
+    )]
+    #[OA\Patch(
+        path: '/api/admin/users/{id}',
+        summary: 'Mettre à jour partiellement un utilisateur',
+        security: [['Bearer' => []]]
+    )]
+    public function updateUser(
+        User $user,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Nom & Prénom
+        if (isset($data['nom'])) $user->setNom(trim((string)$data['nom']));
+        if (isset($data['prenom'])) $user->setPrenom(trim((string)$data['prenom']));
+        
+        // Coordonnées
+        if (isset($data['email'])) $user->setEmail(trim((string)$data['email']));
+        if (isset($data['telephone'])) $user->setTelephone(trim((string)$data['telephone']));
+        if (isset($data['rue'])) $user->setRue(trim((string)$data['rue']));
+        if (isset($data['ville'])) $user->setVille(trim((string)$data['ville']));
+
+        // Code Postal (supporte codePostal et code_postal)
+        $codePostal = $data['codePostal'] ?? $data['code_postal'] ?? null;
+        if ($codePostal !== null) {
+            $user->setCodePostal(trim((string)$codePostal));
+        }
+
+        // Statut Actif / Inactif (supporte is_active, isActive, actif)
+        if (array_key_exists('is_active', $data)) {
+            $user->setActif(filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN));
+        } elseif (array_key_exists('isActive', $data)) {
+            $user->setActif(filter_var($data['isActive'], FILTER_VALIDATE_BOOLEAN));
+        } elseif (array_key_exists('actif', $data)) {
+            $user->setActif(filter_var($data['actif'], FILTER_VALIDATE_BOOLEAN));
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Adhérent mis à jour avec succès',
+            'user' => [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'email' => $user->getEmail(),
+                'actif' => $user->isActif()
+            ]
+        ], Response::HTTP_OK);
+    }
 }

@@ -32,12 +32,73 @@
         return response;
     }
 
-    // Helper pour fermer une modal Bootstrap
+    // Helper pour visualiser un certificat de manière sécurisée (avec Bearer token)
+    async function viewCertificat(certificatId) {
+        if (!certificatId) {
+            alert('Identifiant du certificat introuvable.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/certificats/${certificatId}/download`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Impossible de charger le document.');
+            }
+
+            const blob = await response.blob();
+            const fileUrl = window.URL.createObjectURL(blob);
+            window.open(fileUrl, '_blank');
+        } catch (error) {
+            console.error('Erreur affichage certificat :', error);
+            alert('Impossible de charger le certificat médical.');
+        }
+    }
+
+    // Helper pour fermer proprement une modal Bootstrap
     function closeModal(modalId) {
         const modalEl = document.getElementById(modalId);
         if (modalEl && typeof bootstrap !== 'undefined') {
-            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            modalInstance.hide();
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
+    }
+
+    // Helper formatage de date
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        try {
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return dateString;
+            return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        } catch {
+            return dateString;
+        }
+    }
+
+    // Helper badge certificat médical
+    function getCertifBadge(certifStatus, certifUrl) {
+        const status = certifStatus || (certifUrl ? 'en_attente' : 'non_fourni');
+        switch (status) {
+            case 'valide':
+            case 'valid':
+                return '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-patch-check-fill me-1"></i> Validé</span>';
+            case 'en_attente':
+            case 'pending':
+                return '<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-hourglass-split me-1"></i> En attente</span>';
+            case 'refuse':
+            case 'rejected':
+                return '<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle-fill me-1"></i> Refusé</span>';
+            default:
+                return '<span class="badge bg-secondary-subtle text-secondary"><i class="bi bi-file-earmark-x me-1"></i> Non fourni</span>';
         }
     }
 
@@ -54,8 +115,11 @@
             if (res.ok) {
                 usersList = await res.json();
                 renderUsers(usersList);
+
+                // Calcul KPI Adhérents actifs
+                const activeCount = usersList.filter(u => u.actif ?? u.isActive ?? u.is_active ?? false).length;
                 const kpi = document.getElementById('kpi-users-count');
-                if (kpi) kpi.textContent = usersList.length;
+                if (kpi) kpi.textContent = activeCount;
             }
         } catch (err) {
             console.error('Erreur chargement utilisateurs:', err);
@@ -67,43 +131,70 @@
         if (!tbody) return;
 
         if (!users || users.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Aucun adhérent trouvé.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">Aucun adhérent trouvé.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = users.map(user => {
             const balance = user.carnetSession ? (user.carnetSession.nbSessionsRestant ?? 0) : (user.balance ?? 0);
-            const prenom = user.prenom || user.firstname || '';
-            const nom = user.nom || user.lastname || '';
+            const nom = user.nom || user.lastname || '-';
+            const prenom = user.prenom || user.firstname || '-';
+            const email = user.email || '-';
             const telephone = user.telephone || user.phone || '<span class="text-muted">-</span>';
-            const isAdmin = user.roles && user.roles.includes('ROLE_ADMIN');
+            const dateInscription = formatDate(user.createdAt || user.created_at || user.dateInscription);
+
+            // Adresse
+            const rue = user.rue || user.adresse || '';
+            const cp = user.codePostal || user.code_postal || user.cp || '';
+            const ville = user.ville || '';
+            const adresseHtml = (rue || cp || ville) 
+                ? `<small class="text-dark d-block text-truncate" style="max-width: 150px;" title="${rue} ${cp} ${ville}">${rue ? `${rue}, ` : ''}${cp} ${ville}</small>`
+                : '<span class="text-muted small">-</span>';
+
+            // Statut Actif / Inactif
+            const isActive = user.actif ?? user.isActive ?? user.is_active ?? false;
+            const statusBadge = isActive 
+                ? '<span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle me-1"></i> Actif</span>' 
+                : '<span class="badge bg-danger-subtle text-danger"><i class="bi bi-slash-circle me-1"></i> Inactif</span>';
+
+            // Extraction Statut et Objet Certificat
+            const certif = user.certificatMedical || user.certificat;
+            const certifStatus = (certif && typeof certif === 'object') 
+                ? certif.statut 
+                : (user.certificatStatus || user.certificat_status);
+            const certifBadge = getCertifBadge(certifStatus, certif);
 
             return `
             <tr>
-                <td>
-                    <div class="fw-bold text-dark">${prenom} ${nom}</div>
-                </td>
-                <td>${user.email}</td>
+                <td class="fw-bold text-dark">${nom}</td>
+                <td>${prenom}</td>
+                <td><small>${email}</small></td>
                 <td>${telephone}</td>
+                <td><small class="text-muted">${dateInscription}</small></td>
+                <td>${adresseHtml}</td>
+                <td>${certifBadge}</td>
+                <td>${statusBadge}</td>
                 <td>
                     <span class="badge ${balance > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} border px-2 py-1">
-                        ${balance} session(s)
+                        ${balance} restant(s)
                     </span>
                 </td>
-                <td>
-                    <span class="badge ${isAdmin ? 'bg-primary-subtle text-primary' : 'bg-secondary-subtle text-secondary'}">
-                        ${isAdmin ? 'Admin' : 'Adhérent'}
-                    </span>
-                </td>
-                <td class="text-end">
-                    <button class="btn btn-outline-primary btn-sm rounded-pill btn-adjust-balance" 
+                <td class="text-end text-nowrap">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill btn-edit-user me-1" 
                             data-id="${user.id}" 
-                            data-name="${prenom} ${nom}" 
+                            title="Voir les détails / Modifier">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill btn-adjust-balance me-1" 
+                            data-id="${user.id}" 
+                            data-name="${nom} ${prenom}" 
                             data-balance="${balance}"
                             title="Modifier le solde">
-                        <i class="bi bi-wallet2 me-1"></i> Solde
+                        <i class="bi bi-wallet2"></i>
                     </button>
-                    <button class="btn btn-outline-danger btn-sm rounded-pill btn-delete-user" data-id="${user.id}" title="Supprimer">
+                    <button class="btn btn-outline-danger btn-sm rounded-pill btn-delete-user" 
+                            data-id="${user.id}" 
+                            title="Supprimer">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
@@ -115,27 +206,92 @@
     }
 
     function attachUsersEvents() {
-        // Déclencher modal d'ajustement de solde
+        // Modal Voir / Éditer l'adhérent
+        document.querySelectorAll('.btn-edit-user').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const userId = parseInt(btn.dataset.id, 10);
+                const user = usersList.find(u => u.id === userId);
+                if (!user) return;
+
+                document.getElementById('edit-user-id').value = user.id;
+                document.getElementById('edit-user-lastname').value = user.nom || user.lastname || '';
+                document.getElementById('edit-user-firstname').value = user.prenom || user.firstname || '';
+                document.getElementById('edit-user-email').value = user.email || '';
+                document.getElementById('edit-user-phone').value = user.telephone || user.phone || '';
+                document.getElementById('edit-user-rue').value = user.rue || user.adresse || '';
+                document.getElementById('edit-user-cp').value = user.codePostal || user.code_postal || user.cp || '';
+                document.getElementById('edit-user-ville').value = user.ville || '';
+
+                const isActive = user.actif ?? user.isActive ?? user.is_active ?? false;
+                document.getElementById('edit-user-is-active').value = isActive ? 'true' : 'false';
+
+                // Gestion du Certificat Médical
+                const certif = user.certificatMedical || user.certificat;
+                let certifId = null;
+                let certifStatus = 'non_fourni';
+
+                if (certif && typeof certif === 'object') {
+                    certifId = certif.id;
+                    certifStatus = certif.statut || 'en_attente';
+                } else if (typeof certif === 'number') {
+                    certifId = certif;
+                    certifStatus = user.certificatStatus || user.certificat_status || 'en_attente';
+                } else {
+                    certifStatus = user.certificatStatus || user.certificat_status || 'non_fourni';
+                }
+
+                const certifSelect = document.getElementById('edit-user-certif-status');
+                if (certifSelect) {
+                    certifSelect.value = certifStatus;
+                    // On enregistre l'ID du certificat et son statut initial
+                    certifSelect.dataset.certificatId = certifId || '';
+                    certifSelect.dataset.initialStatus = certifStatus;
+                }
+
+                // Aperçu / Bouton sécurisé vers le certificat
+                const certifContainer = document.getElementById('edit-user-certif-preview');
+                if (certifContainer) {
+                    if (certifId) {
+                        certifContainer.innerHTML = `
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="btn-view-certif-modal">
+                                <i class="bi bi-file-earmark-medical me-1"></i> Voir le document
+                            </button>
+                        `;
+                        document.getElementById('btn-view-certif-modal').addEventListener('click', (e) => {
+                            e.preventDefault();
+                            viewCertificat(certifId);
+                        });
+                    } else {
+                        certifContainer.innerHTML = `<span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Aucun document téléversé</span>`;
+                    }
+                }
+
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditUser'));
+                modal.show();
+            });
+        });
+
+        // Modal Solde
         document.querySelectorAll('.btn-adjust-balance').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById('adjust-user-id').value = btn.dataset.id;
                 document.getElementById('adjust-user-name').textContent = btn.dataset.name;
                 document.getElementById('adjust-balance-val').value = btn.dataset.balance;
 
-                const modal = new bootstrap.Modal(document.getElementById('modalAdjustBalance'));
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdjustBalance'));
                 modal.show();
             });
         });
 
-        // Supprimer un membre
+        // Supprimer un adhérent
         document.querySelectorAll('.btn-delete-user').forEach(btn => {
             btn.addEventListener('click', async () => {
-                if (confirm('Confirmer la suppression de cet adhérent ?')) {
+                if (confirm('Confirmer la suppression définitive de cet adhérent ?')) {
                     try {
                         const id = btn.dataset.id;
                         const res = await apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
                         if (res.ok) {
-                            loadUsers();
+                            await loadUsers();
                         } else {
                             const errData = await res.json().catch(() => ({}));
                             alert(errData.message || errData.error || 'Erreur lors de la suppression.');
@@ -148,17 +304,78 @@
         });
     }
 
-    // Filtrage recherche
+    // Filtrage recherche en direct
     const filterInput = document.getElementById('filter-members-input');
     if (filterInput) {
         filterInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
+            const query = e.target.value.toLowerCase().trim();
             const filtered = usersList.filter(u => {
-                const fullName = `${u.prenom || u.firstname || ''} ${u.nom || u.lastname || ''}`.toLowerCase();
+                const nom = (u.nom || u.lastname || '').toLowerCase();
+                const prenom = (u.prenom || u.firstname || '').toLowerCase();
                 const email = (u.email || '').toLowerCase();
-                return fullName.includes(query) || email.includes(query);
+                const ville = (u.ville || '').toLowerCase();
+                const cp = (u.codePostal || u.code_postal || u.cp || '').toString();
+                return nom.includes(query) || prenom.includes(query) || email.includes(query) || ville.includes(query) || cp.includes(query);
             });
             renderUsers(filtered);
+        });
+    }
+
+    // Formulaire d'Édition Adhérent (Mise à jour coordonnées + Statut certificat)
+    const formEditUser = document.getElementById('form-edit-user');
+    if (formEditUser) {
+        formEditUser.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('edit-user-id')?.value;
+            const certifSelect = document.getElementById('edit-user-certif-status');
+            const newCertifStatus = certifSelect?.value;
+            const certifId = certifSelect?.dataset.certificatId;
+
+            const payload = {
+                nom: document.getElementById('edit-user-lastname')?.value.trim() || '',
+                prenom: document.getElementById('edit-user-firstname')?.value.trim() || '',
+                email: document.getElementById('edit-user-email')?.value.trim() || '',
+                telephone: document.getElementById('edit-user-phone')?.value.trim() || '',
+                rue: document.getElementById('edit-user-rue')?.value.trim() || '',
+                code_postal: document.getElementById('edit-user-cp')?.value.trim() || '',
+                ville: document.getElementById('edit-user-ville')?.value.trim() || '',
+                is_active: document.getElementById('edit-user-is-active')?.value === 'true'
+            };
+
+            try {
+                // 1. Sauvegarde des coordonnées de l'adhérent
+                const resUser = await apiFetch(`/admin/users/${userId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                if (!resUser.ok) {
+                    const data = await resUser.json().catch(() => ({}));
+                    alert(data.message || data.error || "Erreur lors de la mise à jour de l'adhérent.");
+                    return;
+                }
+
+                // 2. Sauvegarde du statut du certificat s'il existe et est géré par l'API
+                if (certifId && ['valide', 'refuse', 'en_attente'].includes(newCertifStatus)) {
+                    const resCertif = await apiFetch(`/admin/certificats/${certifId}/validation`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            statut: newCertifStatus
+                        })
+                    });
+
+                    if (!resCertif.ok) {
+                        const errCertif = await resCertif.json().catch(() => ({}));
+                        alert(errCertif.message || "Erreur lors de la mise à jour du certificat.");
+                    }
+                }
+
+                closeModal('modalEditUser');
+                await loadUsers();
+
+            } catch (err) {
+                console.error("Erreur modification utilisateur:", err);
+            }
         });
     }
 
@@ -172,6 +389,9 @@
                 prenom: document.getElementById('new-user-firstname')?.value.trim() || '',
                 email: document.getElementById('new-user-email')?.value.trim() || '',
                 telephone: document.getElementById('new-user-phone')?.value.trim() || '',
+                rue: document.getElementById('new-user-rue')?.value.trim() || '',
+                code_postal: document.getElementById('new-user-cp')?.value.trim() || '',
+                ville: document.getElementById('new-user-ville')?.value.trim() || '',
                 solde: parseInt(document.getElementById('new-user-balance')?.value, 10) || 0,
                 password: document.getElementById('new-user-password')?.value || ''
             };
@@ -185,7 +405,7 @@
                 if (res.ok) {
                     closeModal('modalCreateUser');
                     e.target.reset();
-                    loadUsers();
+                    await loadUsers();
                 } else {
                     const data = await res.json().catch(() => ({}));
                     alert(data.message || data.error || "Erreur lors de la création de l'adhérent.");
@@ -212,7 +432,7 @@
 
                 if (res.ok) {
                     closeModal('modalAdjustBalance');
-                    loadUsers();
+                    await loadUsers();
                 } else {
                     alert('Erreur lors de la modification du solde.');
                 }
@@ -234,6 +454,11 @@
                 populateAttendanceSelect(sessionsList);
                 const kpi = document.getElementById('kpi-sessions-count');
                 if (kpi) kpi.textContent = sessionsList.length;
+
+                // KPI total présences pointées
+                const totalPresents = sessionsList.reduce((sum, s) => sum + (s.nb_presents ?? 0), 0);
+                const kpiPresences = document.getElementById('kpi-attendance-count');
+                if (kpiPresences) kpiPresences.textContent = totalPresents;
             }
         } catch (err) {
             console.error('Erreur chargement séances:', err);
@@ -245,7 +470,7 @@
         if (!tbody) return;
 
         if (!sessions || sessions.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Aucune séance programmée.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">Aucune séance programmée.</td></tr>`;
             return;
         }
 
@@ -258,12 +483,11 @@
 
             return `
             <tr>
-                <td class="fw-bold">Séance d'entraînement</td>
-                <td>${dateStr}</td>
-                <td>${horaires}</td>
-                <td><span class="badge bg-light text-dark border">${nbPresents} présent(s)</span></td>
+                <td class="fw-bold"><i class="bi bi-calendar-check text-primary me-2"></i>Séance du ${dateStr}</td>
+                <td><span class="badge bg-light text-dark border">${horaires}</span></td>
+                <td><span class="badge bg-success-subtle text-success">${nbPresents} présent(s)</span></td>
                 <td class="text-end">
-                    <button class="btn btn-outline-danger btn-sm rounded-pill btn-delete-session" data-id="${sess.id}" title="Supprimer">
+                    <button class="btn btn-outline-danger btn-sm rounded-pill btn-delete-session" data-id="${sess.id}" title="Supprimer la séance">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
@@ -277,7 +501,7 @@
                     try {
                         const res = await apiFetch(`/admin/sessions/${btn.dataset.id}`, { method: 'DELETE' });
                         if (res.ok) {
-                            loadSessions();
+                            await loadSessions();
                         } else {
                             const data = await res.json().catch(() => ({}));
                             alert(data.message || data.error || 'Erreur lors de la suppression.');
@@ -296,26 +520,17 @@
         formCreateSession.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Récupération du champ datetime (format "YYYY-MM-DDTHH:mm")
-            const rawDateTime = document.getElementById('new-session-datetime')?.value;
+            const dateSession = document.getElementById('new-session-date')?.value;
+            const heureDebut = document.getElementById('new-session-time-start')?.value || '18:00';
+            const heureFin = document.getElementById('new-session-time-end')?.value || '20:00';
 
-            if (!rawDateTime) {
-                alert('Veuillez renseigner la date et l\'heure de la séance.');
+            if (!dateSession) {
+                alert('Veuillez renseigner la date de la séance.');
                 return;
             }
 
-            // Découpage en date_session, heure_debut, et calcul automatique de heure_fin (+2h)
-            const [datePart, timePart] = rawDateTime.split('T');
-            const heureDebut = timePart || '18:00';
-
-            // Calcul de l'heure de fin par défaut (+ 2 heures)
-            const [h, m] = heureDebut.split(':').map(Number);
-            const endH = String((h + 2) % 24).padStart(2, '0');
-            const endM = String(m).padStart(2, '0');
-            const heureFin = `${endH}:${endM}`;
-
             const payload = {
-                date_session: datePart,
+                date_session: dateSession,
                 heure_debut: heureDebut,
                 heure_fin: heureFin
             };
@@ -381,12 +596,12 @@
 
         tbody.innerHTML = usersList.map(user => {
             const balance = user.carnetSession ? (user.carnetSession.nbSessionsRestant ?? 0) : (user.balance ?? 0);
-            const prenom = user.prenom || user.firstname || '';
             const nom = user.nom || user.lastname || '';
+            const prenom = user.prenom || user.firstname || '';
 
             return `
             <tr>
-                <td><strong>${prenom} ${nom}</strong></td>
+                <td><strong>${nom} ${prenom}</strong></td>
                 <td><span class="badge ${balance > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">${balance} restant(s)</span></td>
                 <td class="text-center">
                     <button class="btn btn-outline-success btn-sm rounded-pill btn-checkin" data-userid="${user.id}" data-sessionid="${sessionId}">
@@ -428,7 +643,7 @@
         });
     }
 
-    // Déconnexion
+    // Déconnexion & Rafraîchissement
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', (e) => {
@@ -442,6 +657,13 @@
     if (btnRefresh) {
         btnRefresh.addEventListener('click', loadUsers);
     }
+
+    // Empêche l'erreur de focus aria-hidden à la fermeture des modales
+    document.addEventListener('hide.bs.modal', () => {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+    });
 
     // Initialisation
     loadUsers();
