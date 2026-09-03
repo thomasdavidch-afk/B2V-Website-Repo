@@ -32,3 +32,6 @@ backend/.env.local.php
 backend/.env.*.local
 backend/phpunit.xml
 backend/.phpunit.result.cache
+
+/public/uploads/certificats/*
+!/public/uploads/certificats/.gitkeep
