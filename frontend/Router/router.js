@@ -1,5 +1,6 @@
 import { allRoutes, websiteName } from "./allRoutes.js";
 import Route from './Route.js';
+import { updateNavbar } from '../js/script.js';
 
 const routeEvent = (event) => {
     event = event || window.event;
@@ -69,13 +70,16 @@ const LoadContentPage = async () => {
     // Ajouter le script JS associé à la page si présent
     if (actualRoute.pathJS && actualRoute.pathJS !== "") {
         let scriptTag = document.createElement("script");
-        scriptTag.setAttribute("type", "text/javascript");
+        scriptTag.setAttribute("type", "module"); // Changé en module pour supporter les imports modernes si besoin
         scriptTag.setAttribute("src", actualRoute.pathJS);
         document.querySelector("body").appendChild(scriptTag);
     }
 
     // Mettre à jour le titre de l'onglet
     document.title = actualRoute.title + " - " + websiteName;
+
+    // Met à jour la visibilité selon l'état de connexion (boutons Déconnexion, Mon Compte, etc.)
+    updateNavbar();
 
     // Met à jour la couleur active dans la navigation
     updateActiveNav();
