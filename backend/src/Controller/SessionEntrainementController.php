@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\SessionEntrainement;
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use App\Repository\PresenceRepository;
 use App\Repository\SessionEntrainementRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,7 +66,7 @@ class SessionEntrainementController extends AbstractController
     )]
     public function getMySessions(PresenceRepository $presenceRepository): JsonResponse
     {
-        /** @var Utilisateur $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         $presences = $presenceRepository->findBy(
@@ -197,7 +197,7 @@ class SessionEntrainementController extends AbstractController
     {
         $presences = [];
         foreach ($session->getPresences() as $presence) {
-            $adherent = $presence->getUtilisateur();
+            $adherent = $presence->getUser();
             $presences[] = [
                 'presence_id' => $presence->getId(),
                 'statut' => $presence->getStatut(),
