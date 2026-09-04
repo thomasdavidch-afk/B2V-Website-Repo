@@ -1,4 +1,7 @@
-(() => {
+// =============================================================================
+// INITIALISATION DE LA PAGE MON COMPTE (USER)
+// =============================================================================
+window.initAccountUser = function() {
     // Configuration de l'API
     const API_BASE_URL = 'http://localhost:8080/api';
     const token = localStorage.getItem('jwt_token');
@@ -146,7 +149,7 @@
             if (res.ok) {
                 const data = await res.json();
                 const statut = data.statut || data.status || 'non_fourni';
-                const hasFile = data.hasCertificat || data.id || data.url;
+                const hasFile = data.hasCertificat || data.id || data.url || (statut !== 'non_fourni');
 
                 let badgeHtml = '<span class="badge bg-secondary-subtle text-secondary">Non fourni</span>';
                 if (statut === 'valide' || statut === 'valid') {
@@ -160,7 +163,6 @@
                 if (statusTextEl) statusTextEl.innerHTML = `Statut : ${badgeHtml}`;
 
                 if (hasFile && viewBtn) {
-                    viewBtn.href = `${API_BASE_URL}/adherent/certificat/download`;
                     viewBtn.classList.remove('d-none');
                     if (uploadBtn) uploadBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Remplacer le document';
                 } else if (viewBtn) {
@@ -173,14 +175,41 @@
         }
     }
 
-    // Upload de fichier certificat
+    // Clic sur "Voir mon document" avec authentification
+    const btnViewCertif = document.getElementById('btn-view-certif');
+    if (btnViewCertif) {
+        btnViewCertif.onclick = async (e) => {
+            e.preventDefault();
+            try {
+                const originalText = btnViewCertif.innerHTML;
+                btnViewCertif.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Chargement...';
+
+                // Requête sécurisée avec header Authorization
+                const res = await apiFetch('/adherent/certificat/download');
+                if (!res.ok) throw new Error('Impossible de charger le document');
+
+                // Téléchargement et ouverture via Blob
+                const blob = await res.blob();
+                const fileURL = URL.createObjectURL(blob);
+                window.open(fileURL, '_blank');
+
+                btnViewCertif.innerHTML = originalText;
+            } catch (err) {
+                console.error("Erreur lors de l'ouverture du document :", err);
+                alert("Erreur lors de la récupération du certificat.");
+                btnViewCertif.innerHTML = '<i class="bi bi-eye me-1"></i> Voir mon document';
+            }
+        };
+    }
+
+    // Upload du certificat médical
     const btnUploadCertif = document.getElementById('btn-upload-certif');
     const inputCertif = document.getElementById('input-certificat-file');
 
     if (btnUploadCertif && inputCertif) {
-        btnUploadCertif.addEventListener('click', () => inputCertif.click());
+        btnUploadCertif.onclick = () => inputCertif.click();
 
-        inputCertif.addEventListener('change', async (e) => {
+        inputCertif.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -191,7 +220,7 @@
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('certificat', file); // Double clé par précaution
+            formData.append('certificat', file); // Double clé par compatibilité
 
             try {
                 btnUploadCertif.disabled = true;
@@ -215,7 +244,7 @@
                 btnUploadCertif.disabled = false;
                 inputCertif.value = '';
             }
-        });
+        };
     }
 
     // ==========================================
@@ -286,7 +315,7 @@
 
     const btnRefreshHistory = document.getElementById('btn-refresh-history');
     if (btnRefreshHistory) {
-        btnRefreshHistory.addEventListener('click', loadUserHistory);
+        btnRefreshHistory.onclick = loadUserHistory;
     }
 
     // ==========================================
@@ -294,13 +323,37 @@
     // ==========================================
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
-        btnLogout.addEventListener('click', (e) => {
+        btnLogout.onclick = (e) => {
             e.preventDefault();
             localStorage.removeItem('jwt_token');
             window.location.href = '/signin';
-        });
+        };
     }
 
-    // Initialisation
+    // ==========================================
+    // 7. GESTION DU SCROLL VERS LES ANCRES INTERNES
+    // ==========================================
+    const navAnchors = document.querySelectorAll('a[href^="#"]');
+    navAnchors.forEach(anchor => {
+        anchor.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const targetId = anchor.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        };
+    });
+
+    // Lancement du chargement
     loadUserProfile();
-})();
+};
+
+// Exécution automatique à l'import
+window.initAccountUser();

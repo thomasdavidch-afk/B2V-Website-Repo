@@ -137,3 +137,25 @@ BOUTONS & CLASSES UTILITAIRES BOOTSTRAP
     color: var(--color-action, #f26835) !important; /* Ajustez avec votre variable orange si besoin */
     font-weight: 600;
 }
+
+.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: none !important;
+}
+
+.form-control.is-valid {
+    border-color: #198754 !important;
+    background-image: none !important;
+}
+
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block !important;
+}

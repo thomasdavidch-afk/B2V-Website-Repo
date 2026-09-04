@@ -67,9 +67,9 @@ export function updateNavbar() {
     }
 }
 
-// ==========================================================================
+// =========================================================================
 // 3. GESTION DU CLIC SUR LA DÉCONNEXION
-// ==========================================================================
+// =========================================================================
 document.addEventListener('click', (event) => {
     // Clic sur l'icône ou le bouton de déconnexion
     const logoutBtn = event.target.closest('#btn-navbar-logout') || event.target.closest('#btn-logout');
@@ -77,17 +77,19 @@ document.addEventListener('click', (event) => {
 
     if (logoutBtn || (event.target.tagName === 'BUTTON' && isLogoutText)) {
         event.preventDefault();
-        
+
         // 1. Suppression du token
         localStorage.removeItem('jwt_token');
-        
+
         // 2. Mise à jour visuelle de la barre
         updateNavbar();
-        
-        // 3. Redirection vers la page de connexion via le routeur SPA
+
+        // 3. Redirection vers la page de connexion
         window.history.pushState({}, "", "/signin");
-        if (typeof window.route === 'function') {
-            window.route(event);
+        
+        // Charger le contenu de la nouvelle URL
+        if (typeof window.LoadContentPage === 'function') {
+            window.LoadContentPage();
         } else {
             window.dispatchEvent(new PopStateEvent('popstate'));
         }

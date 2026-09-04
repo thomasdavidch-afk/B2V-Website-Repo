@@ -649,7 +649,12 @@
         btnLogout.addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.removeItem('jwt_token');
-            window.location.href = '/signin';
+            window.history.pushState({}, "", "/signin");
+            if (typeof window.LoadContentPage === 'function') {
+                window.LoadContentPage();
+            } else {
+                window.location.reload();
+            }
         });
     }
 
