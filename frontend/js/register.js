@@ -3,6 +3,9 @@
 (function() {
     console.log("--> register.js bien chargé et exécuté !");
 
+    // ⚠️ Si votre backend tourne sur un autre port (ex: 8000, 5000), adaptez ici :
+    const API_BASE_URL = 'http://localhost:8080/api';
+
     const form = document.getElementById('register-form');
     if (!form) {
         console.warn("Formulaire #register-form introuvable dans le DOM.");
@@ -170,7 +173,7 @@
         submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Envoi en cours...`;
 
         try {
-            const response = await fetch('/api/membership-request', {
+            const response = await fetch(`${API_BASE_URL}/membership-request`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,11 +182,15 @@
                 body: JSON.stringify(payload)
             });
 
-            const result = await response.json();
+            let result = {};
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                result = await response.json();
+            }
 
             if (response.ok) {
                 form.innerHTML = `
-                    <div class="alert alert-success p-4 text-center rounded">
+                    <div class="alert alert-success p-4 text-center rounded shadow-sm">
                         <h4 class="alert-heading font-title mb-2">🎉 Demande transmise avec succès !</h4>
                         <p class="mb-3">
                             Merci <strong>${payload.firstname}</strong>, votre dossier d'évaluation a bien été envoyé au club.
@@ -195,7 +202,7 @@
                     </div>
                 `;
             } else {
-                throw new Error(result.message || "Une erreur est survenue.");
+                throw new Error(result.message || `Erreur serveur (${response.status})`);
             }
         } catch (error) {
             alert('❌ Erreur : ' + error.message);

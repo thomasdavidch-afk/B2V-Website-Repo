@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,14 +27,20 @@ class MembershipRequestController extends AbstractController
             empty($data['phone']) || 
             empty($data['level'])
         ) {
-            return $this->json(['message' => 'Veuillez remplir tous les champs obligatoires avec des valeurs valides.'], Response::HTTP_BADPAD_REQUEST);
+            return $this->json([
+                'message' => 'Veuillez remplir tous les champs obligatoires avec des valeurs valides.'
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $slotsFormatted = !empty($data['slots']) ? implode(', ', array_map('ucfirst', $data['slots'])) : 'Non renseigné';
-        $experienceFormatted = !empty($data['experience']) ? nl2br(htmlspecialchars($data['experience'])) : 'Aucune précision apportée.';
+        $experienceFormatted = !empty($data['experience']) ? nl2br(htmlspecialchars((string)$data['experience'])) : 'Aucune précision apportée.';
 
         // 2. Email envoyé à l'administrateur
-        $adminEmailAddress = $this->getParameter('app.admin_email') ?? 'admin@beachvolleyvibes.fr';
+        try {
+            $adminEmailAddress = $this->getParameter('app.admin_email');
+        } catch (\Throwable $e) {
+            $adminEmailAddress = 'thomas.david.ch@gmail.com';
+        }
 
         $adminEmail = (new Email())
             ->from('no-reply@beachvolleyvibes.fr')
@@ -61,9 +67,9 @@ class MembershipRequestController extends AbstractController
         // 3. Envoi de l'email
         try {
             $mailer->send($adminEmail);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json([
-                'message' => 'Impossible d\'envoyer l\'email pour le moment. Veuillez réessayer ultérieurement.'
+                'message' => 'Erreur lors de l\'envoi de l\'email : ' . $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

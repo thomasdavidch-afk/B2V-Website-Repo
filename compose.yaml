@@ -69,6 +69,18 @@ services:
       - database
     networks:
       - b2v_network
+  
+  #Mailpit:
+    # Mailpit
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: b2v_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # Interface web
+      - "1025:1025" # SMTP
+    networks:
+      - b2v_network
 
 networks:
   b2v_network:
@@ -76,3 +88,5 @@ networks:
 
 volumes:
   db_data:
+
+  
