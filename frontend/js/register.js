@@ -3,7 +3,8 @@
 (function() {
     console.log("--> register.js bien chargé et exécuté !");
 
-    const API_BASE_URL = window.API_URL;
+    const API_BASE_URL = window.API_BASE_URL || window.API_URL;
+
 
     const form = document.getElementById('register-form');
     if (!form) {
@@ -172,7 +173,7 @@
         submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Envoi en cours...`;
 
         try {
-            const response = await fetch(`${API_URL}/membership-request`, {
+            const response = await fetch(`${API_BASE_URL}/membership-request`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

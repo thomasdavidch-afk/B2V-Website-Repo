@@ -1,6 +1,6 @@
 (() => {
     // Configuration de l'API
-    const API_BASE_URL = window.API_URL;
+    const API_BASE_URL = window.API_BASE_URL || window.API_URL;
     const token = localStorage.getItem('jwt_token');
 
     // 1. Contrôle de sécurité Frontend (Redirection si non authentifié)
@@ -18,7 +18,7 @@
             ...(options.headers || {})
         };
 
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers
         });
@@ -40,7 +40,7 @@
         }
 
         try {
-            const response = await fetch(`${API_URL}/admin/certificats/${certificatId}/download`, {
+            const response = await fetch(`${API_BASE_URL}/admin/certificats/${certificatId}/download`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -2,7 +2,8 @@
 // INITIALISATION DE LA PAGE CONTACT
 // =============================================================================
 window.initContact = function() {
-    const API_BASE_URL = window.API_URL;
+    const API_BASE_URL = window.API_BASE_URL || window.API_URL;
+
 
     const form = document.getElementById('contact-form');
     if (!form) return;
@@ -187,7 +188,7 @@ window.initContact = function() {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Envoi en cours...';
 
         try {
-            const response = await fetch(`${API_URL}/contact`, {
+            const response = await fetch(`${API_BASE_URL}/contact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

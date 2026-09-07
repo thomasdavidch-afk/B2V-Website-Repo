@@ -1,7 +1,8 @@
 // js/auth/signin.js
 
 // 1. Définition de l'URL API
-const API_BASE_URL = window.API_URL;
+const API_BASE_URL = window.API_BASE_URL || window.API_URL;
+
 
 // 2. Fonction utilitaire pour décoder le JWT
 function parseJwt(token) {
@@ -45,7 +46,7 @@ if (formLogin) {
         if (oldAlert) oldAlert.remove();
 
         try {
-            const response = await fetch(`${API_URL}/login_check`, {
+            const response = await fetch(`${API_BASE_URL}/login_check`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

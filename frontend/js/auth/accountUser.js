@@ -3,7 +3,8 @@
 // =============================================================================
 window.initAccountUser = function() {
     // Configuration de l'API
-    const API_BASE_URL = window.API_URL;
+    const API_BASE_URL = window.API_BASE_URL || window.API_URL;
+
     const token = localStorage.getItem('jwt_token');
 
     // 1. Contrôle de sécurité Frontend
@@ -24,7 +25,7 @@ window.initAccountUser = function() {
             headers['Content-Type'] = 'application/json';
         }
 
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers
         });
