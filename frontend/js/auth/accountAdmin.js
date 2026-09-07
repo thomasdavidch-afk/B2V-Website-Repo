@@ -18,7 +18,7 @@
             ...(options.headers || {})
         };
 
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const response = await fetch(`${API_URL}${endpoint}`, {
             ...options,
             headers
         });
@@ -40,7 +40,7 @@
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/certificats/${certificatId}/download`, {
+            const response = await fetch(`${API_URL}/admin/certificats/${certificatId}/download`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

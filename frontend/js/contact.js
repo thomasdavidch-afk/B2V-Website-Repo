@@ -187,7 +187,7 @@ window.initContact = function() {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Envoi en cours...';
 
         try {
-            const response = await fetch(`${API_BASE_URL}/contact`, {
+            const response = await fetch(`${API_URL}/contact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

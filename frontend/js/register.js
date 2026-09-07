@@ -172,7 +172,7 @@
         submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Envoi en cours...`;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/membership-request`, {
+            const response = await fetch(`${API_URL}/membership-request`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
