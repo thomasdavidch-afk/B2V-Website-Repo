@@ -11,6 +11,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
         "lexik/jwt-authentication-bundle": "*",
+        "mongodb/mongodb": "^2.4",
         "nelmio/api-doc-bundle": "^5.11",
         "nelmio/cors-bundle": "*",
         "phpdocumentor/reflection-docblock": "^6.0",

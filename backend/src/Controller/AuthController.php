@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\AuditLoggerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -65,7 +66,8 @@ class AuthController extends AbstractController
     public function register(
         Request $request,
         UserPasswordHasherInterface $hasher,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        AuditLoggerService $auditLogger
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -103,7 +105,7 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Un compte existe déjà avec cet email.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Création de l'utilisateur
+        // Création de l'utilisateur (MySQL)
         $user = new User();
         $user->setEmail($email);
         $user->setNom($nom);
@@ -129,6 +131,19 @@ class AuthController extends AbstractController
 
         $em->persist($user);
         $em->flush();
+
+        // Trace d'audit (MongoDB NoSQL)
+        $auditLogger->log(
+            eventType: 'USER_REGISTERED',
+            context: [
+                'registered_user_id' => $user->getId(),
+                'email' => $user->getUserIdentifier(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'ip' => $request->getClientIp()
+            ],
+            user: $user
+        );
 
         return $this->json([
             'message' => 'Utilisateur créé avec succès',
@@ -270,7 +285,8 @@ class AuthController extends AbstractController
         #[CurrentUser] ?User $user,
         Request $request,
         UserPasswordHasherInterface $hasher,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        AuditLoggerService $auditLogger
     ): JsonResponse {
         if (!$user) {
             return $this->json(['message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
@@ -281,26 +297,35 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
         }
 
+        $updatedFields = [];
+
         if (isset($data['nom'])) {
             $user->setNom(trim((string)$data['nom']));
+            $updatedFields[] = 'nom';
         }
         if (isset($data['prenom'])) {
             $user->setPrenom(trim((string)$data['prenom']));
+            $updatedFields[] = 'prenom';
         }
         if (isset($data['telephone'])) {
             $user->setTelephone(trim((string)$data['telephone']));
+            $updatedFields[] = 'telephone';
         }
         if (isset($data['rue'])) {
             $user->setRue(trim((string)$data['rue']));
+            $updatedFields[] = 'rue';
         }
         if (isset($data['codePostal'])) {
             $user->setCodePostal(trim((string)$data['codePostal']));
+            $updatedFields[] = 'codePostal';
         }
         if (isset($data['ville'])) {
             $user->setVille(trim((string)$data['ville']));
+            $updatedFields[] = 'ville';
         }
 
         // Si l'utilisateur souhaite changer son mot de passe
+        $passwordChanged = false;
         if (!empty($data['newPassword'])) {
             if (empty($data['currentPassword'])) {
                 return $this->json(['message' => 'Veuillez renseigner votre mot de passe actuel.'], Response::HTTP_BAD_REQUEST);
@@ -312,9 +337,22 @@ class AuthController extends AbstractController
                 return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 6 caractères.'], Response::HTTP_BAD_REQUEST);
             }
             $user->setPassword($hasher->hashPassword($user, (string)$data['newPassword']));
+            $passwordChanged = true;
+            $updatedFields[] = 'password';
         }
 
         $em->flush();
+
+        // Trace d'audit (MongoDB NoSQL)
+        $auditLogger->log(
+            eventType: 'USER_PROFILE_UPDATED',
+            context: [
+                'updated_fields' => $updatedFields,
+                'password_changed' => $passwordChanged,
+                'ip' => $request->getClientIp()
+            ],
+            user: $user
+        );
 
         return $this->json([
             'message' => 'Profil mis à jour avec succès',
