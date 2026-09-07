@@ -1,7 +1,7 @@
 // js/auth/signin.js
 
 // 1. Définition de l'URL API
-const API_URL = 'http://localhost:8080/api';
+const API_BASE_URL = window.API_BASE_URL;
 
 // 2. Fonction utilitaire pour décoder le JWT
 function parseJwt(token) {

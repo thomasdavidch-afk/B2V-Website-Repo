@@ -3,8 +3,7 @@
 (function() {
     console.log("--> register.js bien chargé et exécuté !");
 
-    // ⚠️ Si votre backend tourne sur un autre port (ex: 8000, 5000), adaptez ici :
-    const API_BASE_URL = 'http://localhost:8080/api';
+    const API_BASE_URL = window.API_BASE_URL;
 
     const form = document.getElementById('register-form');
     if (!form) {

@@ -2,7 +2,7 @@
 // INITIALISATION DE LA PAGE CONTACT
 // =============================================================================
 window.initContact = function() {
-    const API_BASE_URL = 'http://localhost:8080/api';
+    const API_BASE_URL = window.API_BASE_URL;
 
     const form = document.getElementById('contact-form');
     if (!form) return;

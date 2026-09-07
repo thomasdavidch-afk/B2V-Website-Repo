@@ -1,6 +1,6 @@
 (() => {
     // Configuration de l'API
-    const API_BASE_URL = 'http://localhost:8080/api';
+    const API_BASE_URL = window.API_BASE_URL;
     const token = localStorage.getItem('jwt_token');
 
     // 1. Contrôle de sécurité Frontend (Redirection si non authentifié)
