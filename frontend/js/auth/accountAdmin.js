@@ -105,6 +105,7 @@
     // Variables d'état
     let usersList = [];
     let sessionsList = [];
+    let auditLogsList = [];
 
     // ==========================================
     // 2. GESTION DES ADHÉRENTS
@@ -643,6 +644,121 @@
         });
     }
 
+    // ==========================================
+    // 5. GESTION DES LOGS D'AUDIT (MONGODB)
+    // ==========================================
+    function getAuditBadge(eventType) {
+        if (!eventType) return '<span class="badge bg-secondary">UNKNOWN</span>';
+        if (eventType.includes('CONNEXION') || eventType.includes('AUTH') || eventType.includes('TEST')) {
+            return `<span class="badge bg-info-subtle text-info border border-info-subtle">${eventType}</span>`;
+        }
+        if (eventType.includes('POINTAGE') || eventType.includes('SESSION') || eventType.includes('USER_CREATED')) {
+            return `<span class="badge bg-success-subtle text-success border border-success-subtle">${eventType}</span>`;
+        }
+        if (eventType.includes('DELETE') || eventType.includes('BLOCK') || eventType.includes('SECURITY')) {
+            return `<span class="badge bg-danger-subtle text-danger border border-danger-subtle">${eventType}</span>`;
+        }
+        return `<span class="badge bg-dark-subtle text-dark border border-dark-subtle">${eventType}</span>`;
+    }
+
+    async function loadAuditLogs() {
+        try {
+            const res = await apiFetch('/admin/audit-logs');
+            if (res.ok) {
+                const data = await res.json();
+                auditLogsList = data.logs || (Array.isArray(data) ? data : []);
+                renderAuditLogs(auditLogsList);
+            } else {
+                const tbody = document.getElementById('audit-table-body');
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Impossible de charger les logs NoSQL.</td></tr>`;
+            }
+        } catch (err) {
+            console.error('Erreur chargement logs audit:', err);
+        }
+    }
+
+    function renderAuditLogs(logs) {
+        const tbody = document.getElementById('audit-table-body');
+        const countBadge = document.getElementById('audit-logs-count');
+        if (countBadge) countBadge.textContent = `${logs.length} entrée(s)`;
+        if (!tbody) return;
+
+        if (!logs || logs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Aucun log d'audit enregistré pour le moment.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = logs.map(log => {
+            const dateStr = log.created_at || '-';
+            const email = log.author?.email || '<span class="text-muted">Système / Anonyme</span>';
+            const ip = log.ip_address || '-';
+            const logId = log.id || log._id || '';
+
+            return `
+            <tr>
+                <td><small class="text-muted font-monospace">${dateStr}</small></td>
+                <td>${getAuditBadge(log.event_type)}</td>
+                <td><small class="fw-semibold">${email}</small></td>
+                <td><span class="badge bg-light text-secondary border font-monospace">${ip}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill btn-view-audit" data-id="${logId}">
+                        <i class="bi bi-code-slash me-1"></i> Voir JSON
+                    </button>
+                </td>
+            </tr>
+            `;
+        }).join('');
+
+        // Attachement de la modal de visualisation JSON
+        document.querySelectorAll('.btn-view-audit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const log = auditLogsList.find(l => (l.id || l._id) === btn.dataset.id);
+                if (!log) return;
+
+                document.getElementById('audit-detail-id').textContent = log.id || log._id || '-';
+                document.getElementById('audit-detail-type').innerHTML = getAuditBadge(log.event_type);
+                document.getElementById('audit-detail-ua').textContent = log.user_agent || 'N/A';
+                document.getElementById('audit-detail-context').textContent = JSON.stringify(log.context || {}, null, 2);
+
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalViewAuditLog'));
+                modal.show();
+            });
+        });
+    }
+
+    // Filtrage des logs en direct
+    const filterAuditInput = document.getElementById('filter-audit-input');
+    if (filterAuditInput) {
+        filterAuditInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const filtered = auditLogsList.filter(log => {
+                const event = (log.event_type || '').toLowerCase();
+                const email = (log.author?.email || '').toLowerCase();
+                const ip = (log.ip_address || '').toLowerCase();
+                return event.includes(query) || email.includes(query) || ip.includes(query);
+            });
+            renderAuditLogs(filtered);
+        });
+    }
+
+    // Bouton de rafraîchissement des logs
+    const btnRefreshAudit = document.getElementById('btn-refresh-audit');
+    if (btnRefreshAudit) {
+        btnRefreshAudit.addEventListener('click', loadAuditLogs);
+    }
+
+    // Bouton de test pour générer un log devant le jury
+    const btnTestAudit = document.getElementById('btn-test-audit');
+    if (btnTestAudit) {
+        btnTestAudit.addEventListener('click', async () => {
+            btnTestAudit.disabled = true;
+            btnTestAudit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Émission...';
+            await loadAuditLogs();
+            btnTestAudit.disabled = false;
+            btnTestAudit.innerHTML = '<i class="bi bi-play-circle me-1"></i> Tester un log';
+        });
+    }
+
     // Déconnexion & Rafraîchissement
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
@@ -673,4 +789,5 @@
     // Initialisation
     loadUsers();
     loadSessions();
+    loadAuditLogs();
 })();

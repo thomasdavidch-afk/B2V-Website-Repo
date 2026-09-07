@@ -133,16 +133,15 @@ class AuthController extends AbstractController
         $em->flush();
 
         // Trace d'audit (MongoDB NoSQL)
-        $auditLogger->log(
+        $auditLogger->logEvent(
             eventType: 'USER_REGISTERED',
+            author: $user,
             context: [
                 'registered_user_id' => $user->getId(),
                 'email' => $user->getUserIdentifier(),
                 'nom' => $user->getNom(),
                 'prenom' => $user->getPrenom(),
-                'ip' => $request->getClientIp()
-            ],
-            user: $user
+            ]
         );
 
         return $this->json([
@@ -344,14 +343,13 @@ class AuthController extends AbstractController
         $em->flush();
 
         // Trace d'audit (MongoDB NoSQL)
-        $auditLogger->log(
+        $auditLogger->logEvent(
             eventType: 'USER_PROFILE_UPDATED',
+            author: $user,
             context: [
                 'updated_fields' => $updatedFields,
                 'password_changed' => $passwordChanged,
-                'ip' => $request->getClientIp()
-            ],
-            user: $user
+            ]
         );
 
         return $this->json([
