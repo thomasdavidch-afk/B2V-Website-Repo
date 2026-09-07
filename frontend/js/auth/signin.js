@@ -1,7 +1,7 @@
 // js/auth/signin.js
 
 // 1. Définition de l'URL API
-const API_BASE_URL = window.API_BASE_URL;
+const API_BASE_URL = window.API_URL;
 
 // 2. Fonction utilitaire pour décoder le JWT
 function parseJwt(token) {

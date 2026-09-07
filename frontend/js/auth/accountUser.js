@@ -3,7 +3,7 @@
 // =============================================================================
 window.initAccountUser = function() {
     // Configuration de l'API
-    const API_BASE_URL = window.API_BASE_URL;
+    const API_BASE_URL = window.API_URL;
     const token = localStorage.getItem('jwt_token');
 
     // 1. Contrôle de sécurité Frontend

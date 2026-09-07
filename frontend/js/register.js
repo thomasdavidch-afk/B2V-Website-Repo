@@ -3,7 +3,7 @@
 (function() {
     console.log("--> register.js bien chargé et exécuté !");
 
-    const API_BASE_URL = window.API_BASE_URL;
+    const API_BASE_URL = window.API_URL;
 
     const form = document.getElementById('register-form');
     if (!form) {
