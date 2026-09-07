@@ -1,0 +1,57 @@
+FROM php:8.3-fpm-alpine
+
+# 1. Outils système, dépendances et Nginx + Caddy/Supervisor (on utilise Nginx + PHP-FPM légers)
+RUN apk add --no-cache \
+    git \
+    curl \
+    nginx \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    icu-dev \
+    linux-headers \
+    openssl-dev \
+    $PHPIZE_DEPS
+
+# 2. Extensions PHP
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    intl \
+    opcache \
+    zip
+
+# 3. Extension MongoDB
+RUN pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && apk del $PHPIZE_DEPS
+
+# 4. Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/backend
+
+# 5. Copier les fichiers du backend
+COPY backend/ /var/www/backend
+
+# 6. Configuration Nginx minimale intégrée
+RUN mkdir -p /run/nginx
+COPY docker/php/nginx-prod.conf /etc/nginx/http.d/default.conf
+
+# 7. Installation des dépendances Composer (prod)
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV APP_ENV=prod
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# 8. Permissions
+RUN chown -R www-data:www-data /var/www/backend/var
+
+# 9. Script de démarrage (PHP-FPM + Nginx + Migrations)
+COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint.prod.sh
+RUN chmod +x /usr/local/bin/entrypoint.prod.sh
+
+EXPOSE 80
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.prod.sh"]
