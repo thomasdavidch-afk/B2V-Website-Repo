@@ -46,7 +46,7 @@ ENV APP_ENV=prod
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # 8. Permissions
-RUN chown -R www-data:www-data /var/www/backend/var
+RUN mkdir -p /var/www/backend/var && chown -R www-data:www-data /var/www/backend/var
 
 # 9. Script de démarrage (PHP-FPM + Nginx + Migrations)
 COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint.prod.sh
