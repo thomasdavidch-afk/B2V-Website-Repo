@@ -11,3 +11,18 @@ const currentApiUrl = isLocalhost
 // On expose les deux noms pour être compatible avec tous vos fichiers JS
 window.API_URL = currentApiUrl;
 window.API_BASE_URL = currentApiUrl;
+
+// =========================================================================
+//  GESTION DU MENU BURGER FORMAT MOBILE
+// =========================================================================
+document.addEventListener("click", function (event) {
+    const lien = event.target.closest("#mainNavbar a");
+
+    if (!lien) return;
+
+    const navbar = document.querySelector("#mainNavbar");
+
+    const menu = bootstrap.Collapse.getOrCreateInstance(navbar);
+
+    menu.hide();
+});
