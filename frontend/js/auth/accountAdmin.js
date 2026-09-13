@@ -751,11 +751,27 @@
     const btnTestAudit = document.getElementById('btn-test-audit');
     if (btnTestAudit) {
         btnTestAudit.addEventListener('click', async () => {
-            btnTestAudit.disabled = true;
-            btnTestAudit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Émission...';
-            await loadAuditLogs();
-            btnTestAudit.disabled = false;
-            btnTestAudit.innerHTML = '<i class="bi bi-play-circle me-1"></i> Tester un log';
+            try {
+                btnTestAudit.disabled = true;
+                btnTestAudit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Émission...';
+                
+                // On appelle la route GET /api/test-audit
+                // (Si apiFetch ajoute déjà /api automatiquement, mets juste '/test-audit', 
+                // sinon mets '/api/test-audit' selon comment ton apiFetch est configuré)
+                const res = await apiFetch('/test-audit'); // ou '/api/test-audit'
+
+                if (res.ok) {
+                    // On recharge la liste pour afficher le nouveau log généré
+                    await loadAuditLogs();
+                } else {
+                    console.error('Erreur lors du test de log, statut :', res.status);
+                }
+            } catch (err) {
+                console.error('Erreur réseau :', err);
+            } finally {
+                btnTestAudit.disabled = false;
+                btnTestAudit.innerHTML = '<i class="bi bi-play-circle me-1"></i> Tester un log';
+            }
         });
     }
 
