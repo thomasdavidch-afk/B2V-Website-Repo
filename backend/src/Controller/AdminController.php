@@ -14,12 +14,20 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use OpenApi\Attributes as OA;
+use App\Service\AuditLoggerService;
 
 #[Route('/api/admin', name: 'api_admin_')]
 #[IsGranted('ROLE_ADMIN')]
 #[OA\Tag(name: 'Administration')]
 class AdminController extends AbstractController
 {
+    private AuditLoggerService $auditLogger;
+
+    public function __construct(AuditLoggerService $auditLogger)
+    {
+        $this->auditLogger = $auditLogger;
+    }
+    
     /**
      * Liste tous les utilisateurs / adhérents avec leur statut et informations
      */
@@ -187,6 +195,12 @@ class AdminController extends AbstractController
         $em->persist($user);
         $em->flush();
 
+        $this->auditLogger->logEvent('ADMIN_USER_CREATED', $this->getUser(), [
+            'target_user_id' => $user->getId(),
+            'target_email'   => $user->getEmail(),
+            'initial_balance' => $solde
+        ]);
+
         return $this->json([
             'message' => 'Adhérent créé avec succès',
             'id' => $user->getId()
@@ -239,6 +253,12 @@ class AdminController extends AbstractController
             $em->flush();
         }
 
+        $this->auditLogger->logEvent('ADMIN_USER_BALANCE_UPDATED', $this->getUser(), [
+            'target_user_id' => $user->getId(),
+            'target_email'   => $user->getEmail(),
+            'new_balance' => $newBalance
+        ]);
+
         return $this->json(['message' => 'Solde mis à jour avec succès', 'balance' => $newBalance], Response::HTTP_OK);
     }
 
@@ -265,8 +285,16 @@ class AdminController extends AbstractController
             return $this->json(['error' => 'Utilisateur introuvable'], Response::HTTP_NOT_FOUND);
         }
 
+        $targetId = $user->getId();
+        $targetEmail = $user->getEmail();        
+
         $em->remove($user);
         $em->flush();
+
+        $this->auditLogger->logEvent('ADMIN_USER_DELETED', $this->getUser(), [
+            'target_user_id' => $targetId,
+            'target_email'   => $targetEmail
+        ]);
 
         return $this->json(['message' => 'Adhérent supprimé avec succès'], Response::HTTP_OK);
     }
@@ -322,6 +350,12 @@ class AdminController extends AbstractController
         }
 
         $em->flush();
+
+        $this->auditLogger->logEvent('ADMIN_USER_UPDATED', $this->getUser(), [
+            'target_user_id' => $user->getId(),
+            'target_email'   => $user->getEmail(),
+            'updated_fields' => array_keys($data)
+        ]);
 
         return $this->json([
             'message' => 'Adhérent mis à jour avec succès',
